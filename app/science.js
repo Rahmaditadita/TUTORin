@@ -14,7 +14,7 @@ const Fiturkursus = ({ navigation }) => {
           {/* Tombol kembali dengan icon yang menggunakan Ionicons */}
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={30} color="#234873" style={styles.iconStyle} />
-            <Text style={styles.title}>Biology</Text>style={styles.text5} />
+            <Text style={styles.title}>Biology</Text>style={styles.text5} 
           </TouchableOpacity>
         </View>
 
