@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+// import firestore from '@react-native-firebase/firestore';
+
 
 const HomeScreen = () => {
   const navigation = useNavigation(); // Initialize navigation
@@ -14,10 +16,8 @@ const HomeScreen = () => {
   const handleCourseSelection = (course) => setSelectedCourse(course);
   const handleSearchChange = (text) => setSearchQuery(text);
 
-  // Fungsi untuk navigasi ke Fiturkursus
   const handleSeeAll = () => {
-    console.log("Tombol See All ditekan");
-    navigation.navigate('Fiturkursus'); 
+    navigation.navigate('Fiturkursus'); // Navigate to Fiturkursus
   };
 
   return (
@@ -45,8 +45,10 @@ const HomeScreen = () => {
       <Text style={[styles.sectionTitle, { zIndex: 1 }]}>Explore Category</Text>
       <View style={[styles.categoryContainer, { zIndex: 1 }]}>
         <TouchableOpacity
-          style={[styles.categoryItem, selectedCategory === 'science' && styles.selectedItem]}
-          onPress={() => handleCategorySelection('science')}>
+          style={[styles.categoryItem, selectedCourse === 'science' && styles.selectedItem]}
+          onPress={() => { console.log('science');
+          navigation.navigate('science');
+          }}>
           <Image source={require('./assets/ipa.png')} style={styles.categoryImage} />
           <Text style={styles.categoryText}>Science</Text>
         </TouchableOpacity>
@@ -54,8 +56,11 @@ const HomeScreen = () => {
 
       <View style={[styles.categoryContainer, { zIndex: 1 }]}>
         <TouchableOpacity
-          style={[styles.categoryItem, selectedCategory === 'Language' && styles.selectedItem1]}
-          onPress={() => handleCategorySelection('Language')}>
+          style={[styles.categoryItem, selectedCourse === 'Language' && styles.selectedItem]}
+          onPress={() => { console.log('Language');
+          navigation.navigate('Bahasa');
+          }}>
+
           <Image source={require('./assets/language.png')} style={styles.categoryImage} />
           <Text style={styles.categoryText}>Language</Text>
         </TouchableOpacity>
@@ -64,8 +69,10 @@ const HomeScreen = () => {
       {/* Container terpisah untuk Arts */}
       <View style={[styles.categoryContainer2, { zIndex: 1 }]}>
         <TouchableOpacity
-          style={[styles.categoryItem2, selectedCategory === 'Arts' && styles.selectedItem]}
-          onPress={() => handleCategorySelection('Arts')}>
+          style={[styles.categoryItem2, selectedCourse === 'Arts' && styles.selectedItem]}
+          onPress={() => { console.log('arts');
+          navigation.navigate('Arts');
+          }}>
           <Image source={require('./assets/arts.png')} style={styles.categoryImage1} />
           <Text style={styles.categoryText1}>Arts</Text>
         </TouchableOpacity>
@@ -73,16 +80,23 @@ const HomeScreen = () => {
 
       {/* Featured Courses */}
       <Text style={[styles.sectionTitle1, { zIndex: 1 }]}>Featured Courses</Text>
-
-      <TouchableOpacity onPress={handleSeeAll}>
-        <Text style={[styles.sectionTitle2, { zIndex: 1 }]}>see all</Text>
-      </TouchableOpacity>
       
+      <TouchableOpacity
+            style={[styles.sectionTitle2, { zIndex: 1 }]}
+            onPress={() => {
+            console.log('See all');
+            navigation.navigate('Fiturkursus');
+            }}>
+            <Text styles={styles.sectionTitle2}>see all</Text>
+      </TouchableOpacity>
+
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
         <View style={styles.courseContainer}>
           <TouchableOpacity
             style={[styles.courseItem, selectedCourse === 'science' && styles.selectedItem]}
-            onPress={() => handleCourseSelection('science')}>
+            onPress={() => { console.log('science');
+              navigation.navigate('Fiturkursus');
+            }}>
             <Image source={require('./assets/bio.png')} style={styles.courseImage} />
             <Text style={styles.courseTitle}>Science</Text>
             <Text style={[styles.courseTitle_, { fontStyle: 'italic' }]}>Biology</Text>
@@ -93,7 +107,9 @@ const HomeScreen = () => {
         <View style={styles.courseContainer}>
           <TouchableOpacity
             style={[styles.courseItem1, selectedCourse === 'math' && styles.selectedItem]}
-            onPress={() => handleCourseSelection('math')}>
+            onPress={() => {console.log('math');
+              navigation.navigate('Fiturkursus');
+            }}>
             <Image source={require('./assets/math.png')} style={styles.courseImage1} />
             <Text style={styles.courseTitle1}>Science</Text>
             <Text style={[styles.courseTitle1_1, { fontStyle: 'italic' }]}>Mathematic</Text>
@@ -248,7 +264,7 @@ const styles = StyleSheet.create({
   sectionTitle2: {
     fontSize: 12,
     fontWeight: 'medium',
-    color: '#C7C08B',
+    color: '#F6EFBD',
     marginTop: -19,
     marginLeft: 308,
   },

@@ -36,7 +36,7 @@ const courses = [
   },
 ];
 
-const Fiturkursus = () => {
+const FiturkursusScreen = () => {
   const navigation = useNavigation(); // Initialize navigation
 
   const handleGoBack = () => {
@@ -111,4 +111,4 @@ const styles = StyleSheet.create({
   price: { fontSize: 16, color: '#FFF', marginTop: 5 },
 });
 
-export default Fiturkursus;
+export default FiturkursusScreen;

@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     paddingVertical: 40, // Memberikan padding di sekitar ikon
     marginLeft: 250,
-    marginTop: -91,
+    marginTop: -90,
   },
 });
 

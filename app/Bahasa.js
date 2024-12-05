@@ -14,27 +14,23 @@ const KategoriKursus = ({ namaKategori, styleKategori, styleText, onPress, margi
 };
 
 // Fiturkursus component menerima 'navigation' sebagai props untuk navigasi antar halaman
-const scienceScreen = ({}) => {
+const LangScreen = ({}) => {
   const navigation = useNavigation();
 
   const handleBack = () => {
     navigation.navigate('home');
   };
 
-  const handleBiology = () => {
+  const handleEnglish= () => {
     navigation.navigate('science');
   };
 
-  const handlePhysics = () => {
+  const handleArab = () => {
     console.log('Physics');
   };
 
-  const handleMathematics = () => {
+  const handleMandarin = () => {
     console.log('Mathematics');
-  };
-
-  const handleHistory = () => {
-    console.log('History');
   };
 
   return (
@@ -44,27 +40,22 @@ const scienceScreen = ({}) => {
           <TouchableOpacity onPress= {handleBack}>
             <Ionicons name="arrow-back" size={30} color="#234873" />
           </TouchableOpacity>
-          <Text style={styles.header1}>Science</Text>
+          <Text style={styles.header1}>Language</Text>
         </View>
 
         {/* BIOOOO*/}
         <View style={styles.textContainer}>
-          <KategoriKursus namaKategori="Biology"
+          <KategoriKursus namaKategori="English"
           styleKategori={styles.bio} styleText={styles.bio1} 
-          onPress={handleBiology} marginBottom={30}
+          onPress={handleEnglish} marginBottom={30}
           />
-          <KategoriKursus namaKategori="Physics"
+          <KategoriKursus namaKategori="Arabic"
           styleKategori={styles.bio} styleText={styles.bio3} 
-          onPress={handlePhysics} marginBottom={30} 
+          onPress={handleArab} marginBottom={30} 
           />
-          <KategoriKursus namaKategori="Mathematics"
+          <KategoriKursus namaKategori="Mandarin"
           styleKategori={styles.bio} styleText={styles.bio2}
-          onPress={handleMathematics} marginBottom={30}
-          />
-
-          <KategoriKursus namaKategori="History"
-          styleKategori={styles.bio} styleText={styles.bio4}
-          onPress={handleHistory} marginBottom={30}
+          onPress={handleMandarin} marginBottom={30}
           />
         </View>
     </SafeAreaView>
@@ -90,7 +81,7 @@ const styles = StyleSheet.create({
     fontSize: 25, // Ukuran font judul kursus
     fontWeight: 'bold', // Menebalkan font judul kursus
     color: '#1A1869', // Warna teks judul kursus
-    marginLeft: 88, // Memberikan margin bawah
+    marginLeft: 76, 
     alignItems: 'center'
   },
   // BIOOOOOOO
@@ -122,7 +113,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', // Menebalkan font kategori
     color: '#F6EFBD', // Warna teks kategori
     alignItems: 'center',
-    marginLeft: 100,
+    marginLeft: 116,
     flex: 1,
   },
   bio3: {
@@ -130,16 +121,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', // Menebalkan font kategori
     color: '#F6EFBD', // Warna teks kategori
     alignItems: 'center',
-    marginLeft: 126,
-    flex: 1,
-  },
-
-  bio4: {
-    fontSize: 23, // Ukuran font kategori
-    fontWeight: 'bold', // Menebalkan font kategori
-    color: '#F6EFBD', // Warna teks kategori
-    alignItems: 'center',
-    marginLeft: 128,
+    marginLeft: 132,
     flex: 1,
   },
 
@@ -152,4 +134,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default scienceScreen;
+export default LangScreen;

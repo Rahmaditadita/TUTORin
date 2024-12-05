@@ -9,7 +9,11 @@ import Logoketiga from './Logoketiga';
 import LoginScreen from './login';
 import GenderSelectionScreen from './gender'; // Ensure you import GenderSelectionScreen
 import HomeScreen from './app/home';
-import Fiturkursus from './app/Fiturkursus'; // Corrected import path
+import FiturkursusScreen from './app/Fiturkursus'; // Corrected import path
+// import bioScreen from './app/Arts';
+import scienceScreen from './app/science';
+import ArtsScreen from './app/Arts';
+import LangScreen from './app/Bahasa';
 
 const Stack = createStackNavigator();
 
@@ -43,7 +47,10 @@ export default function App() {
         <Stack.Screen name="gender" component={GenderSelectionScreen} />
         <Stack.Screen name="login" component={LoginScreen} />
         <Stack.Screen name="home" component={HomeScreen} />
-        <Stack.Screen name="Fiturkursus" component={Fiturkursus} />
+        <Stack.Screen name="Fiturkursus" component={FiturkursusScreen} />
+        <Stack.Screen name="science" component={scienceScreen} />
+        <Stack.Screen name="Arts" component={ArtsScreen} />
+        <Stack.Screen name="Bahasa" component={LangScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
