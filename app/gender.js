@@ -57,31 +57,34 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   genderButton: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    backgroundColor: '#FACDB7',
+    borderRadius: 50,
     padding: 20,
-    width: 150,
+    paddingHorizontal: 30,
+    paddingVertical: 40,
+    width: 120,
     alignItems: 'center',
+    marginBottom: 4,
+    marginRight: 7,
   },
   selected: {
     backgroundColor: '#FFD7D7',
   },
-  // genderImage: {
-  //   width: 50,
-  //   height: 50,
-  //   marginBottom: 10,
-  // }, // This style is now used
   genderText: {
     fontSize: 16,
+    paddingVertical: 10,
   },
   nextButton: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 5,
+    backgroundColor: '#234873',
+    padding: 20,
+    paddingHorizontal: 40,
+    paddingVertical: 15,
+    borderRadius: 30,
     marginTop: 30,
+    marginVertical: 20,
   },
   nextButtonText: {
-    color: 'white',
+    color: '#F6EFBD',
     fontWeight: 'bold',
   },
 });

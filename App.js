@@ -1,13 +1,15 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
-import { View, Text, StyleSheet } from 'react-native';
 import React from 'react';
 
-// Import komponen yang diperlukan
+// Import the necessary components
 import Logopertama from './Logopertama';
 import Logokedua from './Logokedua';
 import Logoketiga from './Logoketiga';
-import GenderSelectionScreen from './GenderSelectionScreen'; // Pastikan kamu mengimpor GenderSelectionScreen
+import LoginScreen from './login';
+import GenderSelectionScreen from './gender'; // Ensure you import GenderSelectionScreen
+import HomeScreen from './app/home';
+import Fiturkursus from './app/Fiturkursus'; // Corrected import path
 
 const Stack = createStackNavigator();
 
@@ -38,7 +40,10 @@ export default function App() {
         <Stack.Screen name="Logopertama" component={Logopertama} />
         <Stack.Screen name="Logokedua" component={Logokedua} />
         <Stack.Screen name="Logoketiga" component={Logoketiga} />
-        <Stack.Screen name="Gender" component={GenderSelectionScreen} /> {/* Tambahkan screen Gender */}
+        <Stack.Screen name="Gender" component={GenderSelectionScreen} />
+        <Stack.Screen name="login" component={LoginScreen} />
+        <Stack.Screen name="home" component={HomeScreen} />
+        <Stack.Screen name="Fiturkursus" component={Fiturkursus} />
       </Stack.Navigator>
     </NavigationContainer>
   );

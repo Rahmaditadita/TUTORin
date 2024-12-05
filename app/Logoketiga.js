@@ -6,7 +6,7 @@ export default function Logoketiga() {
     const navigation = useNavigation();  // Gunakan hook untuk mendapatkan objek navigation
 
     const handleNext = () => {
-        navigation.navigate('Gender');  // Navigasi ke screen 'Gender'
+        navigation.navigate('login');  // Navigasi ke screen 'Gender'
     };
 
     return (

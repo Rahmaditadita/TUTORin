@@ -1,47 +1,53 @@
 import React from 'react';
 import { SafeAreaView, ScrollView, View, Text, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons'; // Impor ikon panah
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 const courses = [
   {
     category: 'Science',
     title: 'Biology',
     price: '30.000 - 85.000',
-    image: require('../assets/bio.png'), 
+    image: require('../app/assets/bio.png'),
   },
   {
     category: 'Science',
     title: 'Mathematics',
     price: '30.000 - 85.000',
-    image: require('../assets/mtk.png'), 
+    image: require('../app/assets/math.png'),
   },
   {
     category: 'Language',
     title: 'Mandarin',
     price: '25.000 - 70.000',
-    image: require('../assets/mandarin.png'), 
+    image: require('../app/assets/mandarin.png'),
   },
   {
     category: 'Science',
     title: 'History',
     price: '25.000 - 70.000',
-    image: require('../assets/sejarah.png'), 
+    image: require('../app/assets/history.png'),
   },
   {
     category: 'Arts',
     title: 'Piano',
     price: '25.000 - 70.000',
-    image: require('../assets/piano.png'), 
+    image: require('../app/assets/piano.png'),
   },
 ];
 
-const Fiturkursus = ({ navigation }) => {
+const Fiturkursus = () => {
+  const navigation = useNavigation(); // Initialize navigation
+
+  const handleGoBack = () => {
+    navigation.navigate('home');
+  };
+  
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.headerContainer}>
-          {/* Ikon panah */}
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress= {handleGoBack}>
             <Ionicons name="arrow-back" size={30} color="#234873" />
           </TouchableOpacity>
           <Text style={styles.header}>Featured Courses</Text>
@@ -70,50 +76,28 @@ const Fiturkursus = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FBF3BC',
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 10,
-    position: 'fixed',
-  },
-  header: {
-    fontSize: 35,
-    fontWeight: 'bold',
-    color: '#234873',
-    marginLeft: 10,
-  },
+  container: { flex: 1, backgroundColor: '#FBF3BC' },
+  headerContainer: { flexDirection: 'row', alignItems: 'center', margin: 10 },
+  header: { fontSize: 30, fontWeight: 'bold', color: '#234873', marginLeft: 10 },
   card: {
-    position: 'fixed',
     marginVertical: 10,
     marginHorizontal: 20,
     borderRadius: 10,
-    overflow: 'hidden', // Agar gambar tidak keluar dari radius
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 5, // Untuk Android
+    elevation: 5,
   },
-  image: {
-    width: '100%',
-    height: 200,
-    justifyContent: 'flex-end',
-  },
-  imageStyle: {
-    borderRadius: 10, // Radius untuk gambar
-  },
+  image: { width: '100%', height: 200, justifyContent: 'flex-end' },
+  imageStyle: { borderRadius: 10 },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)', // Efek overlay hitam transparan
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderRadius: 10,
   },
-  textContainer: {
-    padding: 15,
-  },
+  textContainer: { padding: 15 },
   categoryContainer: {
     backgroundColor: '#FFF',
     alignSelf: 'flex-start',
@@ -122,21 +106,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 5,
   },
-  category: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#234873',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFF',
-  },
-  price: {
-    fontSize: 16,
-    color: '#FFF',
-    marginTop: 5,
-  },
+  category: { fontSize: 14, fontWeight: 'bold', color: '#234873' },
+  title: { fontSize: 20, fontWeight: 'bold', color: '#FFF' },
+  price: { fontSize: 16, color: '#FFF', marginTop: 5 },
 });
 
 export default Fiturkursus;

@@ -9,10 +9,10 @@ const Profilmentor = ({ navigation }) => {
   const [comment, setComment] = useState('');
 
   const courses = [
-    { title: 'Biology', price: '20.000/meet', rating: '4.9 (100 Reviews)', image: require('../assets/bio.png') },
-    { title: 'Mathematics', price: '75.000/week', rating: '4.9 (100 Reviews)', image: require('../assets/mtk.png') },
-    { title: 'English', price: '350.000/month', rating: '4.9 (100 Reviews)', image: require('../assets/inggris.png') },
-    { title: 'Kimia', price: '100.000/week', rating: '4.9 (100 Reviews)', image: require('../assets/kimia.png') },
+    { title: 'Biology', price: '20.000/meet', rating: '4.9 (100 Reviews)', image: require('../app/assets/bio.png') },
+    { title: 'Mathematics', price: '75.000/week', rating: '4.9 (100 Reviews)', image: require('../app/assets/math.png') },
+    { title: 'English', price: '350.000/month', rating: '4.9 (100 Reviews)', image: require('../app/assets/inggris.png') },
+    { title: 'Kimia', price: '100.000/week', rating: '4.9 (100 Reviews)', image: require('../app/assets/kimia.png') },
   ];
 
   const handleRating = (selectedRating) => {
@@ -39,7 +39,7 @@ const Profilmentor = ({ navigation }) => {
 
       {/* Profile Image */}
       <Image
-        source={require('../assets/Intersect.png')} // Your profile image path
+        source={require('../app/assets/Intersect.png')} // Your profile image path
         style={styles.profileImage}
       />
 
