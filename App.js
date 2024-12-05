@@ -40,7 +40,7 @@ export default function App() {
         <Stack.Screen name="Logopertama" component={Logopertama} />
         <Stack.Screen name="Logokedua" component={Logokedua} />
         <Stack.Screen name="Logoketiga" component={Logoketiga} />
-        <Stack.Screen name="Gender" component={GenderSelectionScreen} />
+        <Stack.Screen name="gender" component={GenderSelectionScreen} />
         <Stack.Screen name="login" component={LoginScreen} />
         <Stack.Screen name="home" component={HomeScreen} />
         <Stack.Screen name="Fiturkursus" component={Fiturkursus} />

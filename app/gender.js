@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';  // Tambahkan import ini
 
 const GenderSelectionScreen = () => {
   const [selectedGender, setSelectedGender] = useState(null);
+  const navigation = useNavigation();
 
   const handleGenderSelection = (gender) => {
+    console.log(navigation); // Tambahkan ini untuk memeriksa apakah navigation ada
     setSelectedGender(gender);
   };
 
@@ -30,10 +33,16 @@ const GenderSelectionScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.nextButton} onPress={() => {
-        // Add logic to proceed to the next screen
+      <TouchableOpacity style={styles.nextButton}
+      onPress={() => {
+        if (selectedGender) {
         console.log('Gender selected:', selectedGender);
-      }}>
+        navigation.navigate('home'); // Navigasi ke layar Home
+      } else {
+        alert('Please select a gender before proceeding.'); // Peringatan jika gender belum dipilih
+      }
+    }}
+    >
         <Text style={styles.nextButtonText}>NEXT</Text>
       </TouchableOpacity>
     </View>

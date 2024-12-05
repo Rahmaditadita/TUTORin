@@ -151,6 +151,9 @@ const Login = ({ navigation }) => {
             value={password}
             onChangeText={(text) => setPassword(text)}
           />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.iconContainer}>
+              <Icon name={showPassword ? 'eye' : 'eye-slash'} size={20} color="#999" />
+            </TouchableOpacity>
 
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Login</Text>
@@ -228,6 +231,11 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     fontSize: 16,
+  },
+  iconContainer: {
+    paddingVertical: 40, // Memberikan padding di sekitar ikon
+    marginLeft: 250,
+    marginTop: -91,
   },
 });
 

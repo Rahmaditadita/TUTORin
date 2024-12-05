@@ -73,9 +73,11 @@ const HomeScreen = () => {
 
       {/* Featured Courses */}
       <Text style={[styles.sectionTitle1, { zIndex: 1 }]}>Featured Courses</Text>
+
       <TouchableOpacity onPress={handleSeeAll}>
         <Text style={[styles.sectionTitle2, { zIndex: 1 }]}>see all</Text>
       </TouchableOpacity>
+      
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
         <View style={styles.courseContainer}>
           <TouchableOpacity
