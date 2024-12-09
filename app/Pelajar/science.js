@@ -22,7 +22,7 @@ const scienceScreen = ({}) => {
   };
 
   const handleBiology = () => {
-    navigation.navigate('science');
+    navigation.navigate('bio');
   };
 
   const handlePhysics = () => {

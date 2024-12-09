@@ -1,63 +1,97 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet,ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import ikon
+import { auth } from '../service/firebaseconfig'; // Import Firebase Auth
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { useNavigation } from '@react-navigation/native';
 
-const Login = ({ navigation }) => {
-  const [isRegistered, setIsRegistered] = useState(false);
+const LoginT = () => {
   const [isOnRegisterScreen, setIsOnRegisterScreen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const navigation = useNavigation();
+  const [username, setUsername] = useState(''); // Define username state
 
-  // User details for registration and login
   const [userDetails, setUserDetails] = useState({
     email: '',
     password: '',
     firstName: '',
     lastName: '',
-    school: '',
     address: '',
   });
 
-  // For login form
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  useEffect(() => {
+    // Memantau status autentikasi pengguna
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUsername(user.email); // Atau gunakan user.displayName jika Anda menyimpannya
+      } else {
+        setUsername('');
+      }
+    });
 
-  const handleRegister = () => {
-    const { email, password, firstName, lastName, school, address } = userDetails;
+    return () => unsubscribe(); // Bersihkan listener saat komponen di-unmount
+  }, []);
 
-    if (!email || !password || !firstName || !lastName || !school || !address) {
+  const handleRegister = async () => {
+    const { email, class: userClass, password, firstName, lastName, school, address } = userDetails;
+
+    if (!email || !firstName || !lastName || !address || !password) {
       Alert.alert('Error', 'Please fill in all fields.');
       return;
     }
 
-    setIsRegistered(true);
-    setIsOnRegisterScreen(false);
-    Alert.alert('Success', 'Account created successfully! Please log in.');
-    setUserDetails({
-      email: '',
-      password: '',
-      firstName: '',
-      lastName: '',
-      school: '',
-      address: '',
-    });
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('User  registered:', userCredential.user);
+      Alert.alert('Success', 'Account created successfully! Please log in.');
+
+      setUserDetails({
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        address: '',
+      });
+
+      setIsOnRegisterScreen(false); // Switch to login screen
+    } catch (error) {
+      console.error('Error during registration:', error);
+      Alert.alert('Error', 'Registration failed. Please try again.');
+    }
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in both fields.');
       return;
     }
 
-    if (email === userDetails.email && password === userDetails.password) {
-      Alert.alert('Success', `Welcome ${userDetails.firstName}!`);
-      navigation.navigate('gender'); // Pastikan layar 'gender' telah didefinisikan
-    } else {
-      Alert.alert('Error', 'Invalid email or password.');
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log('User  logged in:', userCredential.user);
+      setUsername(userCredential.user.displayName || userCredential.user.email); // Set username to user's email
+      navigation.navigate('gender', { username });
+    } catch (error) {
+      console.error('Error during login:', error);
+      Alert.alert('Error', 'Invalid credentials. Please check your email and password.');
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      console.log('User  signed out');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {isOnRegisterScreen ? (
         <>
           <Text style={styles.title}>Register</Text>
@@ -78,13 +112,6 @@ const Login = ({ navigation }) => {
             onChangeText={(text) => setUserDetails({ ...userDetails, lastName: text })}
           />
 
-          <TextInput
-            style={styles.input}
-            placeholder="School"
-            placeholderTextColor="#999"
-            value={userDetails.school}
-            onChangeText={(text) => setUserDetails({ ...userDetails, school: text })}
-          />
 
           <TextInput
             style={styles.input}
@@ -147,7 +174,7 @@ const Login = ({ navigation }) => {
             style={styles.input}
             placeholder="Password"
             placeholderTextColor="#999"
-            secureTextEntry={true}
+            secureTextEntry={!showPassword}
             value={password}
             onChangeText={(text) => setPassword(text)}
           />
@@ -167,7 +194,7 @@ const Login = ({ navigation }) => {
           </TouchableOpacity>
         </>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -176,7 +203,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#F6EFBD',
     padding: 20,
   },
   title: {
@@ -188,7 +215,7 @@ const styles = StyleSheet.create({
   input: {
     height: 50,
     width: '90%',
-    borderColor: '#ccc',
+    borderColor: '#234873',
     borderWidth: 1,
     borderRadius: 8,
     marginBottom: 15,
@@ -196,7 +223,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   button: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#234873',
     padding: 15,
     width: '90%',
     borderRadius: 8,
@@ -204,7 +231,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: '#fff',
+    color: '#F6EFBD',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -220,7 +247,7 @@ const styles = StyleSheet.create({
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderColor: '#ccc',
+    borderColor: '#234873',
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 10,
@@ -239,4 +266,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default LoginT;

@@ -1,6 +1,12 @@
 {
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    "target": "esnext", 
+    "module": "commonjs", // Menentukan sistem modul
+    "jsx": "react", // Menentukan cara TypeScript menangani JSX
+    "esModuleInterop": true, // Memungkinkan interop dengan modul CommonJS
+    "skipLibCheck": true, // Melewati pemeriksaan tipe untuk file deklarasi
+    "forceConsistentCasingInFileNames": true // Memastikan konsistensi casing dalam nama file
   },
   "extends": "expo/tsconfig.base",
   "include": [
@@ -8,5 +14,10 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules", // Mengecualikan folder node_modules
+    "**/*.spec.ts", // Mengecualikan file spesifikasi jika ada
+    "**/*.test.tsx" // Mengecualikan file test jika ada
   ]
 }

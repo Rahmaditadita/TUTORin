@@ -1,20 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
-// import firestore from '@react-native-firebase/firestore';
-
+import { useNavigation } from '@react-navigation/native';
+import { db, collection, getDocs } from 'firebase/firestore';
+// import { firestore } from './service/firebaseconfig'; // Import Firestore
 
 const HomeScreen = () => {
   const navigation = useNavigation(); // Initialize navigation
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  // const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [username, setUsername] = useState('');
+  const [courses, setCourses] = useState([]); // State to store courses
+  const [filteredCourses, setFilteredCourses] = useState([]); // Filtered courses based on search query
+
+  const handlelogout = async () => {
+    Alert.alert(
+      "Confirm Logout",
+      "Are you sure you want to leave?",
+      [
+        {
+          text: "Batal",
+          onPress: () => console.log("Logout cancelled."),
+          style: "cancel"
+        },
+        {
+          text: "Ya",
+          onPress: async () => {
+            try {
+              await signOut(auth);
+              console.log('User   signed out');
+              navigation.navigate('login');
+            } catch (error) {
+              console.error('Error signing out:', error);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleLogout = () => {
+    navigation.navigate('login');
+  };
+
+  const handleSearchChange = (text) => {
+    setSearchQuery(text); // Update the search query
+  };
+
 
   const handleCategorySelection = (category) => setSelectedCategory(category);
   const handleCourseSelection = (course) => setSelectedCourse(course);
-  const handleSearchChange = (text) => setSearchQuery(text);
 
   const handleSeeAll = () => {
     navigation.navigate('Fiturkursus'); // Navigate to Fiturkursus
@@ -49,7 +85,7 @@ const HomeScreen = () => {
           onPress={() => { console.log('science');
           navigation.navigate('science');
           }}>
-          <Image source={require('./assets/ipa.png')} style={styles.categoryImage} />
+          <Image source={require('../assets/ipa.png')} style={styles.categoryImage} />
           <Text style={styles.categoryText}>Science</Text>
         </TouchableOpacity>
       </View>
@@ -61,7 +97,7 @@ const HomeScreen = () => {
           navigation.navigate('Bahasa');
           }}>
 
-          <Image source={require('./assets/language.png')} style={styles.categoryImage} />
+          <Image source={require('../assets/language.png')} style={styles.categoryImage} />
           <Text style={styles.categoryText}>Language</Text>
         </TouchableOpacity>
       </View>
@@ -73,7 +109,7 @@ const HomeScreen = () => {
           onPress={() => { console.log('arts');
           navigation.navigate('Arts');
           }}>
-          <Image source={require('./assets/arts.png')} style={styles.categoryImage1} />
+          <Image source={require('../assets/arts.png')} style={styles.categoryImage1} />
           <Text style={styles.categoryText1}>Arts</Text>
         </TouchableOpacity>
       </View>
@@ -97,7 +133,7 @@ const HomeScreen = () => {
             onPress={() => { console.log('science');
               navigation.navigate('Fiturkursus');
             }}>
-            <Image source={require('./assets/bio.png')} style={styles.courseImage} />
+            <Image source={require('../assets/bio.png')} style={styles.courseImage} />
             <Text style={styles.courseTitle}>Science</Text>
             <Text style={[styles.courseTitle_, { fontStyle: 'italic' }]}>Biology</Text>
             <Text style={styles.coursePrice}>30.000 - 85.000</Text>
@@ -110,7 +146,7 @@ const HomeScreen = () => {
             onPress={() => {console.log('math');
               navigation.navigate('Fiturkursus');
             }}>
-            <Image source={require('./assets/math.png')} style={styles.courseImage1} />
+            <Image source={require('../assets/math.png')} style={styles.courseImage1} />
             <Text style={styles.courseTitle1}>Science</Text>
             <Text style={[styles.courseTitle1_1, { fontStyle: 'italic' }]}>Mathematic</Text>
             <Text style={styles.coursePrice1}>40.000 - 90.000</Text>
@@ -127,6 +163,10 @@ const HomeScreen = () => {
           <Icon name="list" size={20} color="#888" style={styles.searchIcon} />
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity style={styles.logoutButton} onPress={handlelogout}>
+        <Icon name="sign-out" size={20} color="#888" style={styles.logoutIcon} />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -355,7 +395,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#727272',
     marginLeft: 120,
-    marginVertical: 10,
+    marginVertical: -10,
     paddingVertical: 0,
     height: 35,
     width: 120,
@@ -367,6 +407,9 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     height: 20,
     width: 50,
+  },
+  logoutIcon: {
+    left: 10,
   },
    rectangle: {
     position: 'absolute',

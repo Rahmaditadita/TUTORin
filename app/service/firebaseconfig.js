@@ -1,9 +1,11 @@
 // firebaseconfig.js
 import { initializeApp } from 'firebase/app'; // Import initializeApp
-import { getFirestore } from 'firebase/firestore'; // Import Firestore
+import { getFirestore, collection, getDocs} from 'firebase/firestore'; // Import Firestore
 import { getAuth } from 'firebase/auth'; // Import Auth
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage untuk persistensi
 import { getReactNativePersistence } from 'firebase/auth'; // Import persistence
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDDf8uhRZBhlBDMyMGamVSWO3bDZNV5eRE",
@@ -28,6 +30,7 @@ const firestore = getFirestore(app);
 const auth = getAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage) // Setup persistence
 });
+
 
 // Ekspor objek untuk digunakan di tempat lain
 export { firestore, auth };

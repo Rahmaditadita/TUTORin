@@ -8,67 +8,92 @@ const courses = [
     category: 'Science',
     title: 'Biology',
     price: '30.000 - 85.000',
-    image: require('../app/assets/bio.png'),
+    image: require('../assets/bio.png'),
   },
   {
     category: 'Science',
     title: 'Mathematics',
     price: '30.000 - 85.000',
-    image: require('../app/assets/math.png'),
+    image: require('../assets/math.png'),
   },
   {
     category: 'Language',
     title: 'Mandarin',
     price: '25.000 - 70.000',
-    image: require('../app/assets/mandarin.png'),
+    image: require('../assets/mandarin.png'),
   },
   {
     category: 'Science',
     title: 'History',
     price: '25.000 - 70.000',
-    image: require('../app/assets/history.png'),
+    image: require('../assets/history.png'),
   },
   {
     category: 'Arts',
     title: 'Piano',
     price: '25.000 - 70.000',
-    image: require('../app/assets/piano.png'),
+    image: require('../assets/piano.png'),
   },
 ];
 
 const FiturkursusScreen = () => {
-  const navigation = useNavigation(); // Initialize navigation
+  const navigation = useNavigation();
 
   const handleGoBack = () => {
     navigation.navigate('home');
   };
   
+  const handleCoursePress = (course) => {
+    switch (course.title) {
+      case 'Biology':
+        navigation.navigate('bio'); // Arahkan ke bio.js
+        break;
+      case 'Mathematics':
+        navigation.navigate('math'); // Arahkan ke math.js
+        break;
+      case 'Mandarin':
+        navigation.navigate('mandarin'); // Arahkan ke mandarin.js
+        break;
+      case 'History':
+        navigation.navigate('history'); // Arahkan ke history.js
+        break;
+      case 'Piano':
+        navigation.navigate('piano'); // Arahkan ke piano.js
+        break;
+      default:
+        console.log('Course not found');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.headerContainer}>
-          <TouchableOpacity onPress= {handleGoBack}>
+          <TouchableOpacity onPress={handleGoBack}>
             <Ionicons name="arrow-back" size={30} color="#234873" />
           </TouchableOpacity>
           <Text style={styles.header}>Featured Courses</Text>
         </View>
+
         {courses.map((course, index) => (
-          <View key={index} style={styles.card}>
-            <ImageBackground
-              source={course.image}
-              style={styles.image}
-              imageStyle={styles.imageStyle}
-            >
-              <View style={styles.overlay} />
-              <View style={styles.textContainer}>
-                <View style={styles.categoryContainer}>
-                  <Text style={styles.category}>{course.category}</Text>
+          <TouchableOpacity key={index} onPress={() => handleCoursePress(course)}>
+            <View style={styles.card}>
+              <ImageBackground
+                source={course.image}
+                style={styles.image}
+                imageStyle={styles.imageStyle}
+              >
+                <View style={styles.overlay} />
+                <View style={styles.textContainer}>
+                  <View style={styles.categoryContainer}>
+                    <Text style={styles.category}>{course.category}</Text>
+                  </View>
+                  <Text style={styles.title}>{course.title}</Text>
+                  <Text style={styles.price}>{course.price}</Text>
                 </View>
-                <Text style={styles.title}>{course.title}</Text>
-                <Text style={styles.price}>{course.price}</Text>
-              </View>
-            </ImageBackground>
-          </View>
+              </ImageBackground>
+            </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </SafeAreaView>

@@ -20,7 +20,7 @@ const GenderSelectionScreen = () => {
           style={[styles.genderButton, selectedGender === 'male' && styles.selected]}
           onPress={() => handleGenderSelection('male')}
         >
-          <Image source={require('./assets/male.png')} style={styles.navigationItemIcon} />
+          <Image source={require('../assets/male.png')} style={styles.navigationItemIcon} />
           <Text style={styles.genderText}>Male</Text>
         </TouchableOpacity>
 
@@ -28,7 +28,7 @@ const GenderSelectionScreen = () => {
           style={[styles.genderButton, selectedGender === 'female' && styles.selected]}
           onPress={() => handleGenderSelection('female')}
         >
-          <Image source={require('./assets/female.png')} style={styles.navigationItemIcon} />
+          <Image source={require('../assets/female.png')} style={styles.navigationItemIcon} />
           <Text style={styles.genderText}>Female</Text>
         </TouchableOpacity>
       </View>
