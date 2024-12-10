@@ -2,19 +2,20 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 
-// Import the necessary components
-import Logopertama from './app/Pelajar/Logopertama';
-import LoginScreen from './app/Pelajar/loginpelajar';
-import GenderSelectionScreen from './app/Pelajar/gender';
-import HomeScreen from './app/Pelajar/home';
-import FiturkursusScreen from './app/Pelajar/Fiturkursus';
-import scienceScreen from './app/Pelajar/science';
-import ArtsScreen from './app/Pelajar/Arts';
-import LangScreen from './app/Pelajar/Bahasa';
-import Profilmentor from './app/Pelajar/Profilmentor';
-import payScreen from './app/Pelajar/pay';
-import BioScreen from './app/Pelajar/bio';
+// PELAJARRRR
+import LogopertamaScreen from '../TUTORin/app/pelajar/logopertama'; // Ensure this path is correct
+import LoginScreen from '../TUTORin/app/pelajar/loginpelajar'; // Ensure this path is correct
+import GenderSelectionScreen from '../TUTORin/app/pelajar/gender'; // Ensure this path is correct
+import HomeScreen from '../TUTORin/app/pelajar/home'; // Ensure this path is correct
+import FiturkursusScreen from '../TUTORin/app/pelajar/Fiturkursus'; // Ensure this path is correct
+import ScienceScreen from '../TUTORin/app/pelajar/science'; // Ensure this path is correct
+import ArtsScreen from '../TUTORin/app/pelajar/Arts'; // Ensure this path is correct
+import LangScreen from '../TUTORin/app/pelajar/Bahasa'; // Ensure this path is correct
+import PayScreen from '../TUTORin/app/pelajar/pay'; // Ensure this path is correct
+import BioScreen from './app/pelajar/bio'; // Ensure this path is correct
+import ProfilmentorScreen from './app/pelajar/Profilementor';
 
+//TUTORRRRR
 import LoginT from './app/Tutor/logintutor';
 
 const Stack = createStackNavigator();
@@ -23,7 +24,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Logopertama"
+        initialRouteName="logopertama"
         screenOptions={{
           headerShown: false,
           cardStyleInterpolator: ({ current, next, layouts }) => {
@@ -43,19 +44,20 @@ export default function App() {
           },
         }}
       >
-        <Stack.Screen name="Logopertama" component={Logopertama} />
+        
+        <Stack.Screen name="logopertama" component={LogopertamaScreen} />
         <Stack.Screen name="gender" component={GenderSelectionScreen} />
         <Stack.Screen name="loginpelajar" component={LoginScreen} />
         <Stack.Screen name="home" component={HomeScreen} />
         <Stack.Screen name="Fiturkursus" component={FiturkursusScreen} />
-        <Stack.Screen name="science" component={scienceScreen} />
+        <Stack.Screen name="science" component={ScienceScreen} />
         <Stack.Screen name="Arts" component={ArtsScreen} />
         <Stack.Screen name="Bahasa" component={LangScreen} />
-        <Stack.Screen name='bio' component={BioScreen} />
-        <Stack.Screen name='Profilmentor' component={Profilmentor} />
-        <Stack.Screen name='pay' component={payScreen} />
+        <Stack.Screen name="bio" component={BioScreen} />
+        <Stack.Screen name="Profilementor" component={ProfilmentorScreen} />
+        <Stack.Screen name="pay" component={PayScreen} />
 
-        <Stack.Screen name='logintutor' component={LoginT} />
+        <Stack.Screen name="logintutor" component={LoginT}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

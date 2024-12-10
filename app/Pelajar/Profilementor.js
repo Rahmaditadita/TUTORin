@@ -6,7 +6,7 @@ import { db } from '../service/firebaseconfig'; // Adjust the import based on yo
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const Profilmentor = () => {
+const ProfilementorScreen = () => {
   const [activeTab, setActiveTab] = useState('About');
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -387,4 +387,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Profilmentor;
+export default ProfilementorScreen;

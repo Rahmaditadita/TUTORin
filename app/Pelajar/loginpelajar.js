@@ -5,7 +5,6 @@ import { auth } from '../service/firebaseconfig'; // Import Firebase Auth
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
-import { Picker } from '@react-native-picker/picker'; // Import Picker
 
 const Login = () => {
   const [isOnRegisterScreen, setIsOnRegisterScreen] = useState(false);
@@ -150,17 +149,6 @@ const Login = () => {
             value={userDetails.email}
             onChangeText={(text) => setUserDetails({ ...userDetails, email: text })}
           />
-
-          {/* <TextInput
-            style={styles.input}
-            placeholder="Class"
-            placeholderTextColor="#999"
-            autoCapitalize="none"
-
-          />
-          <TouchableOpacity onPress={() => setShowDropdown(!showDropdown)} style={styles.iconContainer2}>
-            <Icon name={showDropdown ? 'chevron-down' : 'chevron-right'} size={14} color={"#234873"} />
-          </TouchableOpacity> */}
 
           <View style={styles.input1}>
             <View style={styles.classContainer}>

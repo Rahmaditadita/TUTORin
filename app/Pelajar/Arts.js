@@ -1,146 +1,368 @@
-import React from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons'; // Importing the back arrow icon
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome'; // Import ikon
+import { auth } from '../service/firebaseconfig'; // Import Firebase Auth
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { useNavigation } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker'; // Import Picker
 
-const KategoriKursus = ({ namaKategori, styleKategori, styleText, onPress, marginBottom }) => {
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <View style={[styleKategori, { marginBottom: marginBottom }]}>
-        <Text style={styleText}>{namaKategori}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
-
-// Fiturkursus component menerima 'navigation' sebagai props untuk navigasi antar halaman
-const ArtsScreen = ({}) => {
+const Login = () => {
+  const [isOnRegisterScreen, setIsOnRegisterScreen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
+  const [username, setUsername] = useState(''); // Define username state
+  const [showDropdown, setShowDropdown] = useState(false);
+  
 
-  const handleBack = () => {
-    navigation.navigate('home');
+  const [userDetails, setUserDetails] = useState({
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    school: '',
+    address: '',
+    class: '',
+  });
+
+  useEffect(() => {
+    // Memantau status autentikasi pengguna
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUsername(user.email); // Atau gunakan user.displayName jika Anda menyimpannya
+      } else {
+        setUsername('');
+      }
+    });
+
+    return () => unsubscribe(); // Bersihkan listener saat komponen di-unmount
+  }, []);
+
+  const handleRegister = async () => {
+    const { email, class: userClass, password, firstName, lastName, school, address } = userDetails;
+
+    if (!email || !userClass || !firstName || !lastName || !school || !address || !password) {
+      Alert.alert('Error', 'Please fill in all fields.');
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('User  registered:', userCredential.user);
+      navigation.navigate('gender', { username });
+      Alert.alert('Success', 'Account created successfully! Please log in.');
+
+      setUserDetails({
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        school: '',
+        address: '',
+        class: '',
+      });
+
+      setIsOnRegisterScreen(false); // Switch to login screen
+    } catch (error) {
+      console.error('Error during registration:', error);
+      Alert.alert('Error', 'Registration failed. Please try again.');
+    }
   };
 
-  const handlePain= () => {
-    navigation.navigate('science');
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in both fields.');
+      return;
+    }
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log('User  logged in:', userCredential.user);
+      setUsername(userCredential.user.displayName || userCredential.user.email); // Set username to user's email
+      navigation.navigate('home', { username });
+    } catch (error) {
+      console.error('Error during login:', error);
+      Alert.alert('Error', 'Invalid credentials. Please check your email and password.');
+    }
   };
 
-  const handleMus = () => {
-    console.log('Physics');
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      console.log('User  signed out');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
-  const handleClas = () => {
-    console.log('Mathematics');
+  const handleClass = (classId) => {
+    setUserDetails({ ...userDetails, class: classId });
+    setShowDropdown(false); // Menutup dropdown setelah memilih kelas
   };
+
 
   return (
-    // SafeAreaView memastikan komponen berada dalam area aman pada layar
-    <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress= {handleBack}>
-            <Ionicons name="arrow-back" size={30} color="#234873" />
-          </TouchableOpacity>
-          <Text style={styles.header1}>Arts</Text>
-        </View>
+    <ScrollView contentContainerStyle={styles.container}>
+      {isOnRegisterScreen ? (
+        <>
+          <Text style={styles.title}>Register</Text>
 
-        {/* BIOOOO*/}
-        <View style={styles.textContainer}>
-          <KategoriKursus namaKategori="Painting"
-          styleKategori={styles.bio} styleText={styles.bio1} 
-          onPress={handlePain} marginBottom={30}
+          <TextInput
+            style={styles.input}
+            placeholder="First Name"
+            placeholderTextColor="#999"
+            value={userDetails.firstName}
+            onChangeText={(text) => setUserDetails({ ...userDetails, firstName: text })}
           />
-          <KategoriKursus namaKategori="Musical Arts"
-          styleKategori={styles.bio} styleText={styles.bio3} 
-          onPress={handleMus} marginBottom={30} 
+
+          <TextInput
+            style={styles.input}
+            placeholder="Last Name"
+            placeholderTextColor="#999"
+            value={userDetails.lastName}
+            onChangeText={(text) => setUserDetails({ ...userDetails, lastName: text })}
           />
-          <KategoriKursus namaKategori="Clasical Ballet"
-          styleKategori={styles.bio} styleText={styles.bio2}
-          onPress={handleClas} marginBottom={30}
+
+          <TextInput
+            style={styles.input}
+            placeholder="School"
+            placeholderTextColor="#999"
+            value={userDetails.school}
+            onChangeText={(text) => setUserDetails({ ...userDetails, school: text })}
           />
-        </View>
-    </SafeAreaView>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Address"
+            placeholderTextColor="#999"
+            value={userDetails.address}
+            onChangeText={(text) => setUserDetails({ ...userDetails, address: text })}
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="#999"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={userDetails.email}
+            onChangeText={(text) => setUserDetails({ ...userDetails, email: text })}
+          />
+
+          {/* <TextInput
+            style={styles.input}
+            placeholder="Class"
+            placeholderTextColor="#999"
+            autoCapitalize="none"
+
+          />
+          <TouchableOpacity onPress={() => setShowDropdown(!showDropdown)} style={styles.iconContainer2}>
+            <Icon name={showDropdown ? 'chevron-down' : 'chevron-right'} size={14} color={"#234873"} />
+          </TouchableOpacity> */}
+
+          <View style={styles.input1}>
+            <View style={styles.classContainer}>
+            <Text style={[styles.selectedClassText1, { color: userDetails.class ? '#234873' : '#999' }]}>
+            {userDetails.class || "Class"}
+          </Text>
+          <TouchableOpacity onPress={() => setShowDropdown(!showDropdown)} style={styles.iconContainer2}>
+            <Icon name={showDropdown ? 'chevron-down' : 'chevron-right'} size={14} color={"#234873"} />
+          </TouchableOpacity>
+          </View>
+      </View>     
+
+          {showDropdown && (
+            <View style={styles.dropdownContainer}>
+              <TouchableOpacity onPress={() => handleClass('7')}>
+                <Text style={styles.dropdownItem}>Class 7</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleClass('8')}>
+                <Text style={styles.dropdownItem}>Class 8</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleClass('9')}>
+                <Text style={styles.dropdownItem}>Class 9</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              placeholder="Password"
+              placeholderTextColor="#999"
+              secureTextEntry={!showPassword}
+              value={userDetails.password}
+              onChangeText={(text) => setUserDetails({ ...userDetails, password: text })}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.iconContainer1}>
+              <Icon name={showPassword ? 'eye' : 'eye-slash'} size={20} color="#999" />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.button} onPress={handleRegister}>
+            <Text style={styles.buttonText}>Register</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.switchButton}
+            onPress={() => setIsOnRegisterScreen(false)}
+          >
+            <Text style={styles.switchButtonText}>Already have an account? Login</Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <>
+          <Text style={styles.title}>Login</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="#999"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#999"
+            secureTextEntry={!showPassword}
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.iconContainer}>
+            <Icon name={showPassword ? 'eye' : 'eye-slash'} size={20} color="#999" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.switchButton}
+            onPress={() => setIsOnRegisterScreen(true)}
+          >
+            <Text style={styles.switchButtonText}>Don't have an account? Register</Text>
+          </TouchableOpacity>
+        </>
+      )}
+    </ScrollView>
   );
 };
 
-
-// Styling untuk komponen menggunakan StyleSheet
+// Gaya untuk komponen
 const styles = StyleSheet.create({
-  // Style untuk container utama, memberikan warna latar belakang
   container: {
-    flex: 1, // Membuat container mengisi seluruh layar
-    backgroundColor: '#FBF3BC', // Menentukan warna latar belakang
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F6EFBD',
+    padding: 20,
   },
-// HEADETRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
-  header: {
-    flexDirection: 'row', // Membuat kontainer dengan elemen berjejer secara horizontal
-    alignItems: 'center', // Menyelaraskan item secara vertikal
-    paddingVertical: 20, // Memberikan padding vertikal
-    marginHorizontal: 20, // Memberikan margin horizontal
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#333',
   },
-  header1: {
-    fontSize: 25, // Ukuran font judul kursus
-    fontWeight: 'bold', // Menebalkan font judul kursus
-    color: '#1A1869', // Warna teks judul kursus
-    marginLeft: 112, // Memberikan margin bawah
-    alignItems: 'center'
+  input: {
+    height: 50,
+    width: '90%',
+    borderColor: '#234873',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 15,
+    paddingLeft: 15,
+    fontSize: 16,
   },
-  // BIOOOOOOO
-  textContainer: {
-    padding: 15, // Memberikan padding di seluruh konten
+  input1: {
+    height: 50,
+    width: '90%',
+    borderColor: '#234873',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 15,
+    paddingLeft: 15,
+    fontSize: 1,
   },
-  // Styling untuk kategori kursus
-  bio: {
-    backgroundColor: '#1A1869', // Latar belakang kategori dengan warna putih // Menyelaraskan ke kiri
-    paddingVertical: 20, // Padding vertikal pada kategori
-    borderRadius: 20,
-    justifyContent: 'center', // Memastikan konten di tengah secara vertikal
-    alignItems: 'center', // Memastikan konten di tengah secara horizontal
+  selectedClassText1: {
+    fontSize: 16,
+    padding: 1,
+    top: 12,
+  },
+  button: {
+    backgroundColor: '#234873',
+    padding: 15,
+    width: '90%',
+    borderRadius: 8,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#F6EFBD',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  switchButton: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  switchButtonText: {
+    color: '#4CAF50',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  passwordContainer: {
     flexDirection: 'row',
-  },
-  // Styling untuk teks kategori
-  bio1: {
-    fontSize: 23, // Ukuran font kategori
-    fontWeight: 'bold', // Menebalkan font kategori
-    color: '#F6EFBD', // Warna teks kategori
     alignItems: 'center',
-    marginLeft: 128,
-    flex: 1,
-    position: 'static',
-    paddingHorizontal: 0,
+    borderColor: '#234873',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    width: '90%',
+    marginBottom: 10,
+    marginTop: -1,
   },
-  bio2: {
-    fontSize: 23, // Ukuran font kategori
-    fontWeight: 'bold', // Menebalkan font kategori
-    color: '#F6EFBD', // Warna teks kategori
-    alignItems: 'center',
-    marginLeft: 100,
+  passwordInput: {
     flex: 1,
+    height: 50,
+    fontSize: 16,
   },
-  bio3: {
-    fontSize: 23, // Ukuran font kategori
-    fontWeight: 'bold', // Menebalkan font kategori
-    color: '#F6EFBD', // Warna teks kategori
-    alignItems: 'center',
-    marginLeft: 106,
-    flex: 1,
+  iconContainer: {
+    paddingVertical: 0,
+    top: -50,
+    marginLeft: 250,
   },
-
-  bio4: {
-    fontSize: 23, // Ukuran font kategori
-    fontWeight: 'bold', // Menebalkan font kategori
-    color: '#F6EFBD', // Warna teks kategori
-    alignItems: 'center',
-    marginLeft: 128,
-    flex: 1,
+  iconContainer1: {
+    paddingVertical: 10,
+    marginLeft: 20,
   },
-
-  // Styling untuk ikon
-  iconStyle: {
-    position: 'absolute', // Menempatkan ikon di atas gambar
-    top: 100, // Menempatkan ikon sedikit di atas gambar
-    left: 20, // Memberikan jarak dari kiri
-    zIndex: 3, // Menempatkan ikon di atas gambar
+  iconContainer2: {
+    paddingVertical:-60,
+    marginLeft: 250,
+    top: -6,
+  },
+  dropdownContainer: {
+    position: 'absolute',
+    backgroundColor: '#4CAF50',
+    borderColor: '#234873',
+    borderWidth: 1,
+    borderRadius: 8,
+    width: '50%',
+    zIndex: 1,
+    marginTop: 5,
+    top: 464,
+    left: 164,
+  },
+  dropdownItem: {
+    padding: 10,
+    fontSize: 16,
+    color: '#234873',
   },
 });
 
-export default ArtsScreen;
+export default Login;

@@ -46,6 +46,7 @@ const LoginT = () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.log('User  registered:', userCredential.user);
+      navigation.navigate('gender', { username });
       Alert.alert('Success', 'Account created successfully! Please log in.');
 
       setUserDetails({
@@ -73,7 +74,7 @@ const LoginT = () => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log('User  logged in:', userCredential.user);
       setUsername(userCredential.user.displayName || userCredential.user.email); // Set username to user's email
-      navigation.navigate('gender', { username });
+      navigation.navigate('home', { username });
     } catch (error) {
       console.error('Error during login:', error);
       Alert.alert('Error', 'Invalid credentials. Please check your email and password.');
