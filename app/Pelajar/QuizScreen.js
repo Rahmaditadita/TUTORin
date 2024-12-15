@@ -9,50 +9,58 @@ export function QuizScreen({ route, navigation }) {
   const quizQuestions = {
     'Lesson 1': [
       {
-        question: 'What is the main function of the heart?',
-        options: ['Pumping blood', 'Digesting food', 'Filtering waste', 'Producing energy'],
-        correctAnswer: 0,
+        question: 'What is the main function of the heart in the circulatory system?',
+        options: ['Producing blood', ' Pumping blood throughout the body', 'Filtering blood', 'Regulating body temperature'],
+        correctAnswer: 1,
+        explanation: 'The heart pumps blood throughout the body. This blood carries oxygen, nutrients, and hormones to the tissues and organs, while also removing waste products like carbon dioxide.',
       },
       {
-        question: 'What organ is responsible for pumping blood?',
-        options: ['Lungs', 'Heart', 'Kidney', 'Brain'],
-        correctAnswer: 1,
+        question: 'What is the name of the blood vessel that carries blood from the heart to the body?',
+        options: ['Arteries', 'Veins', 'Capillaries', 'Aorta'],
+        correctAnswer: 0,
+        explanation: 'Arteries are the blood vessels that carry oxygenated blood away from the heart to various parts of the body. The largest artery in the body is the aorta, which is why it is sometimes included as an option.',
       },
     ],
     'Lesson 2': [
       {
-        question: 'What is the basic unit of life?',
-        options: ['Tissue', 'Organ', 'Cell', 'Organ system'],
-        correctAnswer: 2,
+        question: 'One of the characteristics of living organisms is..',
+        options: ['Breathing', 'Not moving', 'Having wings', 'Not needing food'],
+        correctAnswer: 0,
+        explanation: 'Breathing is a characteristic of living organisms because they need to take in oxygen and expel carbon dioxide. Not all living organisms breathe in the same way, but they all have some method of respiration.',
       },
       {
-        question: 'Which of the following is not a type of cell?',
-        options: ['Animal cell', 'Plant cell', 'Bacterial cell', 'Water cell'],
-        correctAnswer: 3,
+        question: 'How do plants move?',
+        options: ['Running', 'Through photosynthesis', 'Following the direction of sunlight', 'Not moving at all'],
+        correctAnswer: 2,
+        explanation: 'Plants do not move like animals, but they can exhibit movement in response to environmental factors, such as light (phototropism). This movement allows them to maximize their exposure to sunlight for photosynthesis.',
       },
     ],
     'Lesson 3': [
       {
-        question: 'Which part of the plant is responsible for photosynthesis?',
-        options: ['Root', 'Stem', 'Leaf', 'Flower'],
+        question: 'The scientist who developed the classification system for living organisms is..',
+        options: ['Isaac Newton', ' Charles Darwin', 'Carolus Linnaeus', 'Gregor Mendel'],
         correctAnswer: 2,
+        explanation: 'Carolus Linnaeus is the scientist who developed the binomial nomenclature system for classifying living organisms. He is known as the "father of taxonomy." His system classified organisms based on shared physical characteristics.',
       },
       {
-        question: 'What is the process by which plants make their own food?',
-        options: ['Respiration', 'Photosynthesis', 'Digestion', 'Fermentation'],
-        correctAnswer: 1,
+        question: 'The kingdom that consists of unicellular organisms is..',
+        options: ['Plantae', 'Animalia', 'Protista', 'Fungi'],
+        correctAnswer: 2,
+        explanation: 'The kingdom Protista consists of mostly unicellular organisms like algae and protozoa. Unlike the Plantae kingdom, which consists of multicellular plants, Protista organisms can live in a wide range of environments, including water and soil.',
       },
     ],
     'Lesson 4': [
       {
-        question: 'Which of these animals is classified as a mammal?',
-        options: ['Lion', 'Snake', 'Frog', 'Eagle'],
-        correctAnswer: 0,
+        question: 'The main cause of global warming is..',
+        options: ['Acid rain', 'Air pollution due to greenhouse gases', 'Sun activity', ' Lack of trees in forests'],
+        correctAnswer: 1,
+        explanation: 'Global warming is primarily caused by an increase in greenhouse gases like carbon dioxide, methane, and nitrous oxide. These gases trap heat in the Earth’s atmosphere, leading to a rise in global temperatures.',
       },
       {
-        question: 'What is the main characteristic of birds?',
-        options: ['Feathers', 'Scales', 'Fur', 'Tentacles'],
-        correctAnswer: 0,
+        question: 'One way to reduce global warming is..',
+        options: ['Using personal vehicles', 'Planting trees', 'Burning plastic waste', 'Using more electricity'],
+        correctAnswer: 1,
+        explanation: 'Planting trees helps absorb carbon dioxide from the atmosphere, which is a major greenhouse gas. Trees also release oxygen, contributing to a healthier environment. Reducing deforestation and increasing green spaces can significantly mitigate global warming.',
       },
     ],
   };
@@ -63,6 +71,7 @@ export function QuizScreen({ route, navigation }) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [quizCompleted, setQuizCompleted] = useState(false);
 
   const handleOptionPress = (index) => {
     setSelectedOption(index);
@@ -82,15 +91,15 @@ export function QuizScreen({ route, navigation }) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedOption(null);
     } else {
-      // Show final score
-      Alert.alert(
-        'Quiz Completed',
-        `You scored ${score + (selectedOption === questions[currentQuestion].correctAnswer ? 1 : 0)} out of ${questions.length}`,
-        [
-          { text: 'OK', onPress: () => navigation.goBack() },
-        ]
-      );
+      setQuizCompleted(true);
+
     }
+  };
+  const handleTryAgain = () => {
+    setScore(0);
+    setCurrentQuestion(0);
+    setSelectedOption(null);
+    setQuizCompleted(false);  // Reset quiz completion status
   };
 
   return (
@@ -133,6 +142,7 @@ const styles = StyleSheet.create({
     color: '#234873',
     textAlign: 'center',
     marginBottom: 20,
+    marginTop: 100,
   },
   questionText: {
     fontSize: 18,
@@ -145,7 +155,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   optionButton: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#FFF7C0',
     borderWidth: 1,
     width: '70%',
     borderColor: '#234873',

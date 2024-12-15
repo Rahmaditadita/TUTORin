@@ -54,17 +54,19 @@ const PayScreen = ({ onPaymentSuccess }) => {
       Alert.alert('Error', 'Please select session time and learning method.');
       return;
     }
-    Alert.alert('Payment Successful', 'You have selected ${selectedBank.name} with code: ${paymentCode}');
-    
+
     // Call the onPaymentSuccess function to add the course to the list
-    onPaymentSuccess({
+    const paymentDetails = {
       bank: selectedBank.name,
       paymentCode,
       sessionTime: selectedSessionTime.name,
       learningMethod: selectedLearningMethod.name,
-    });
-  };
-
+      amount: 100000, // Contoh jumlah uang yang diterima
+    };
+      Alert.alert('Payment Successful', 'You have selected ${selectedBank.name} with code: ${paymentCode}');
+        
+      onPaymentSuccess(paymentDetails); // Memanggil fungsi untuk mengupdate state di HomePage
+    };
   const copyToClipboard = () => {
     Clipboard.setString(paymentCode);
     Alert.alert('Copied!', 'Payment code has been copied to clipboard.');

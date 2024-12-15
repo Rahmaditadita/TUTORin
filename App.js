@@ -6,8 +6,9 @@ import React from 'react';
 import LogopertamaScreen from '../TUTORin/app/pelajar/logopertama'; // Ensure this path is correct
 import LoginScreen from '../TUTORin/app/pelajar/loginpelajar'; // Ensure this path is correct
 import GenderSelectionScreen from '../TUTORin/app/pelajar/gender'; // Ensure this path is correct
-import HomeScreen from '../TUTORin/app/pelajar/home';
-import FiturkursusScreen from '../TUTORin/app/pelajar/Fiturkursus'; // Ensure this path is correct
+import HomeScreen from '../TUTORin/app/pelajar/Home';
+// import  FiturkursusScreen from '../TUTORin/app/pelajar/Fiturkursus'; // Ensure this path is correct
+import listpelajar from './app/pelajar/listpelajar';
 import ScienceScreen from '../TUTORin/app/pelajar/science'; // Ensure this path is correct
 import ArtsScreen from '../TUTORin/app/pelajar/Arts'; // Ensure this path is correct
 import LangScreen from '../TUTORin/app/pelajar/Bahasa'; // Ensure this path is correct
@@ -19,16 +20,15 @@ import Profilebio from './app/pelajar/ProfilMbio';
 import ProfilH from './app/pelajar/ProfilH';
 import Search from './app/pelajar/search';
 import matorScreen from './app/pelajar/Math';
+import { QuizScreen } from './app/pelajar/QuizScreen';
 
 //TUTORRRRR
 import LoginT from './app/Tutor/logintutor';
 import HomePage from './app/Tutor/homepage';
 import GenderMenScreen from './app/Tutor/gendermen';
-import { QuizScreen } from './app/pelajar/QuizScreen';
 import ManageQuiz from './app/Tutor/manageQuiz';
 import Tutorkursus from './app/Tutor/Tutorkursus';
-// import TutorDashboard from './app/Tutor/Videotutor';
-import PaymentScreen from './app/Tutor/payment';
+import TutorDashboard from './app/Tutor/Videotutor';
 import PilihTutor from './app/Tutor/pilihtutor';
 
 
@@ -63,7 +63,7 @@ export default function App() {
         <Stack.Screen name="gender" component={GenderSelectionScreen} />
         <Stack.Screen name="loginpelajar" component={LoginScreen} />
         <Stack.Screen name="home" component={HomeScreen} />
-        <Stack.Screen name="Fiturkursus" component={FiturkursusScreen} />
+        {/* <Stack.Screen name="Fiturkursus" component={FiturkursusScreen} /> */}
         <Stack.Screen name="science" component={ScienceScreen} />
         <Stack.Screen name="Arts" component={ArtsScreen} />
         <Stack.Screen name="Bahasa" component={LangScreen} />
@@ -76,6 +76,7 @@ export default function App() {
         <Stack.Screen name='Math' component={matorScreen}/>
         <Stack.Screen name='videoBio' component={BioVideo}/>
         <Stack.Screen name='QuizScreen' component={QuizScreen} />
+        <Stack.Screen name='listpelajar' component={listpelajar}/>
 
 
         <Stack.Screen name="logintutor" component={LoginT}/>
@@ -83,8 +84,7 @@ export default function App() {
         <Stack.Screen name='gendermen' component={GenderMenScreen}/>
         <Stack.Screen name='manageQuiz' component={ManageQuiz}/>
         <Stack.Screen name='Tutorkursus' component={Tutorkursus}/>
-        {/* <Stack.Screen name='Videotutor' component={TutorDashboard}/> */}
-        <Stack.Screen name='payment' component={PaymentScreen}/>
+        <Stack.Screen name='Videotutor' component={TutorDashboard}/>
         <Stack.Screen name='pilihtutor' component={PilihTutor}/>
       </Stack.Navigator>
     </NavigationContainer>

@@ -8,6 +8,8 @@ const Search = ({ navigation}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [subjects, setSubjects] = useState([]);
   const [searchHistory, setSearchHistory] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
+  
 
   useEffect(() => {
     const loadSubjects = async () => {
@@ -26,9 +28,8 @@ const Search = ({ navigation}) => {
       
       for (const courseDoc of querySnapshot.docs) {
         const courseId = courseDoc.id;
-  
-
-      const meetSnapshot = await getDocs(collection(firestore, `coursess/${courseId}/meetId`));
+        const meetSnapshot = await getDocs(collection(firestore, `coursess/${courseId}/meetId`));
+        
         meetSnapshot.forEach((meetDoc) => {
           const meetData = meetDoc.data();
           coursesData.push({
@@ -57,17 +58,17 @@ const Search = ({ navigation}) => {
     }
   };
 
-  const saveSearchToFirebase = async (query) => {
-    try {
-      const docRef = await addDoc(collection(firestore, 'searchHistory'), {
-        query: query,
-        timestamp: new Date().toISOString(),
-      });
-      console.log('Search saved with ID:', docRef.id);
-    } catch (error) {
-      console.error('Error saving search:', error);
-    }
-  };
+    const saveSearchToFirebase = async (query) => {
+      try {
+        const docRef = await addDoc(collection(firestore, 'searchHistory'), {
+          query: query,
+          timestamp: new Date().toISOString(),
+        });
+        console.log('Search saved with ID:', docRef.id);
+      } catch (error) {
+        console.error('Error saving search:', error.message); // Tambahkan error message untuk lebih jelas
+      }
+    };
 
     const handleSearch = (query) => {
       setSearchQuery(query);
@@ -75,11 +76,21 @@ const Search = ({ navigation}) => {
         saveSearchToFirebase(query);
         setSearchHistory((prev) => [...prev, query]);
       }
+      const categories = ['Biologi', 'History', 'English', 'Mathematics', 'Korean', 'Arabic', 'Physics'];
+        const filteredCategories = categories.filter((category) =>
+        category.toLowerCase().includes(query.toLowerCase())
+      );
+      setRecommendations(filteredCategories); // Menampilkan kategori yang relevan
+    };
+
+  const handleRecommendationPress = (category) => {
+    setSearchQuery(category);
+    setRecommendations([]);
     };
 
   // Filter data berdasarkan pencarian
   const filteredSubjects = subjects.filter((subject) =>
-    subject.tittle.toLowerCase().includes(searchQuery.toLowerCase()) // Menyesuaikan pencarian
+    subject.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -103,7 +114,23 @@ const Search = ({ navigation}) => {
           onChangeText={handleSearch} // Update query saat mengetik
         />
       </View>
-
+      {/* Recomendasi Pencarian */}
+      {recommendations.length > 0 && (
+        <View style={styles.recommendationsContainer}>
+          <FlatList
+            data={recommendations}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.recommendationItem}
+                onPress={() => handleRecommendationPress(item)}
+              >
+                <Text style={styles.recommendationText}>{item}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      )}
       {/* Riwayat Pencarian */}
       {searchHistory.length > 0 && (
         <View style={styles.historyContainer}>
@@ -128,12 +155,40 @@ const Search = ({ navigation}) => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={() => navigation.navigate('home', { courseId: item.id })}>
-            <View style={styles.courseItem}>
-              <Text style={styles.courseTitle}>{item.title}</Text>
-              <Text>{item.category}</Text>
-            </View>
-          </TouchableOpacity>
+          onPress={() => {
+            // Pindahkan navigasi berdasarkan kategori course
+            switch(item.category) {
+              case 'Biologi':
+                navigation.navigate('bio');
+                break;
+              case 'History':
+                navigation.navigate('History');
+                break;
+              case 'English':
+                navigation.navigate('English');
+                break;
+              case 'Mathematics':
+                navigation.navigate('Mathematics');
+                break;
+              case 'Korean':
+                navigation.navigate('Korean');
+                break;
+              case 'Arabic':
+                navigation.navigate('Arabic');
+                break;
+              case 'Physics':
+                navigation.navigate('Physics');
+                break;
+              default:
+                navigation.navigate('DefaultScreen'); // Optional, bisa ganti dengan screen default
+            }
+          }}
+        >
+      <View style={styles.courseItem}>
+        <Text style={styles.courseTitle}>{item.title}</Text>
+        <Text>{item.category}</Text>
+      </View>
+    </TouchableOpacity>
         )}
       />
     </SafeAreaView>
@@ -188,6 +243,18 @@ const styles = StyleSheet.create({
   itemText: {
     fontSize: 16,
     color: '#333',
+  },
+  recommendationsContainer: {
+    padding: 20,
+  },
+  recommendationItem: {
+    padding: 10,
+    backgroundColor: '#f0f0f0',
+    marginBottom: 5,
+    borderRadius: 5,
+  },
+  recommendationText: {
+    fontSize: 16,
   },
   historyContainer: {
     marginHorizontal: 16,

@@ -6,24 +6,24 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 export default function BioVideo({ navigation }) {
   const videos = [
     {
-      title: 'Apa Itu Ilmu Biologi Sebenarnya?',
+      title: 'The Circulatory System',
       lesson: 'Lesson 1',
-      videoUrl: 'dQw4w9WgXcQ', // YouTube Video ID
+      videoUrl: '_vMIvibgEcg', // YouTube Video ID
     },
     {
-      title: 'Understanding Cells',
+      title: 'Characteristics of Living Things',
       lesson: 'Lesson 2',
-      videoUrl: '3fumBcKC6RE', // YouTube Video ID
+      videoUrl: 'VzoPfyaJaZQ', // YouTube Video ID
     },
     {
-      title: 'Plant Anatomy',
+      title: 'Classification of Living Things',
       lesson: 'Lesson 3',
-      videoUrl: 'C0DPdy98e4c', // YouTube Video ID
+      videoUrl: 'Lyiwj0_0gXE', // YouTube Video ID
     },
     {
-      title: 'The Animal Kingdom',
+      title: 'Global Warming',
       lesson: 'Lesson 4',
-      videoUrl: 'tgbNymZ7vqY', // YouTube Video ID
+      videoUrl: 'jfCYvspgQ8I', // YouTube Video ID
     },
   ];
 
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   card: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#F6EFBD',
     marginHorizontal: 16,
     marginBottom: 16,
     borderRadius: 10,

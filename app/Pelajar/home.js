@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView, StyleSheet, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import { auth } from '../service/firebaseconfig'; // Import your Firebase config
 import { signOut, onAuthStateChanged } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -42,9 +44,10 @@ const HomeScreen = () => {
           text: "Yes",
           onPress: async () => {
             try {
-              await signOut(auth); // Sign out from Firebase
-              console.log('User  signed out');
-              navigation.navigate('loginpelajar'); // Navigate to login screen
+              await signOut(auth); // Logout dari Firebase
+              await AsyncStorage.clear(); // Hapus data lokal
+              console.log('User signed out and local data cleared');
+              navigation.navigate('loginpelajar'); // Navigasi ke layar login
             } catch (error) {
               console.error('Error signing out:', error);
               Alert.alert('Error', 'Failed to log out. Please try again.');
@@ -54,6 +57,7 @@ const HomeScreen = () => {
       ]
     );
   };
+
 
   const handleSearchChange = (text) => {
     setSearchQuery(text); // Update the search query
@@ -126,63 +130,109 @@ const HomeScreen = () => {
       </View>
 
       {/* Featured Courses */}
-      <Text style={[styles.sectionTitle1, { zIndex: 1 }]}>Featured Courses</Text>
+      <Text style={[styles.sectionTitle1, { zIndex: 1 }]}>Recommendation</Text>
       
-      <TouchableOpacity
+      {/* <TouchableOpacity
             style={[styles.sectionTitle2, { zIndex: 1 }]}
             onPress={() => {
             console.log('See all');
             navigation.navigate('Fiturkursus');
             }}>
             <Text styles={styles.sectionTitle2}>see all</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-        <View style={styles.courseContainer}>
-          <TouchableOpacity
-            style={[styles.courseItem, selectedCourse === 'science' && styles.selectedItem]}
-            onPress={() => { console.log('science');
-              navigation.navigate('Fiturkursus');
-            }}>
-            <Image source={require('../assets/bio.png')} style={styles.courseImage} />
-            <Text style={styles.courseTitle}>Scicos</Text>
-            <Text style={[styles.courseTitle_, { fontStyle: 'italic' }]}>Biology</Text>
-            <Text style={styles.coursePrice}>30.000 - 85.000</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.courseContainer}>
+        <TouchableOpacity
+          style={[styles.courseItem, selectedCourse === 'science' && styles.selectedItem]}
+          onPress={() => { 
+            console.log('science');
+            // navigation.navigate('Fiturkursus');
+          }}>
+          <Image source={require('../assets/bio.png')} style={styles.courseImage} />
+          <Text style={styles.courseTitle}>Scicos</Text>
+          <Text style={[styles.courseTitle_, { fontWeight: 'bold', fontStyle: 'italic', color: '#234873',}]}>Biology</Text>
+          <Text style={styles.courseUseclass}>SMP Class 7</Text>
+          <Text style={styles.coursePrice}>30.000 - 85.000</Text>
 
-        <View style={styles.courseContainer}>
-          <TouchableOpacity
-            style={[styles.courseItem1, selectedCourse === 'math' && styles.selectedItem]}
-            onPress={() => {console.log('math');
-              navigation.navigate('Fiturkursus');
-            }}>
-            <Image source={require('../assets/math.png')} style={styles.courseImage1} />
-            <Text style={styles.courseTitle1}>Scicos</Text>
-            <Text style={[styles.courseTitle1_1, { fontStyle: 'italic' }]}>Mathematic</Text>
-            <Text style={styles.coursePrice1}>40.000 - 90.000</Text>
+          <View style={styles.buttonsContainer}>
+          {/* Button for method */}
+            <TouchableOpacity style={styles.methodButton}>
+              <Text style={styles.buttonText1}>Offline</Text>
+            </TouchableOpacity>
+
+            {/* Button for buy */}
+            <TouchableOpacity
+              style={styles.buyButton}
+              onPress={() => {
+                console.log('Navigating to payment...');
+                navigation.navigate('pay'); // Navigate to payment screen
+              }}
+            >
+            <Text style={styles.buttonText}>BUY</Text>
           </TouchableOpacity>
         </View>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.courseContainer}>
+        <TouchableOpacity
+          style={[styles.courseItem, selectedCourse === 'math' && styles.selectedItem]}
+          onPress={() => {
+            console.log('math');
+            navigation.navigate('Fiturkursus');
+          }}>
+          <Image source={require('../assets/math.png')} style={styles.courseImage} />
+          <Text style={styles.courseTitle}>Scicos</Text>
+          <Text style={[styles.courseTitle1_, { fontWeight: 'bold', fontStyle: 'italic', color: '#234873', left: 25 }]}>Mathematics</Text>
+          <Text style={styles.courseUseclass1}>SMP Class 9</Text>
+          <Text style={styles.coursePrice1}>40.000 - 90.000</Text>
+
+          <View style={styles.buttonsContainer}>
+          <TouchableOpacity style={styles.methodButton1}>
+              <Text style={styles.buttonText1}>Online</Text>
+          </TouchableOpacity>
+
+                      {/* Button for buy */}
+          <TouchableOpacity
+              style={styles.buyButton}
+              onPress={() => {
+                console.log('Navigating to payment...');
+                navigation.navigate('pay'); // Navigate to payment screen
+              }}
+            >
+            <Text style={styles.buttonText2}>BUY</Text>
+          </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </View>
       </ScrollView>
 
-      <TouchableOpacity 
-        style={[styles.logoutButton, isLogoutPressed && styles.logoutButtonPressed]} 
-        onPress={handleout}
-        onPressIn={() => setIsLogoutPressed(true)} // Set state saat ditekan
-        onPressOut={() => setIsLogoutPressed(false)} // Reset state saat dilepaskan
+      <TouchableOpacity
+      style={styles.logoutButton}
+      onPress={handleout} // Tetap menjalankan fungsi logout
       >
-        <Icon name="sign-out" size={30} color="#888" style={styles.logoutIcon} />
+      <Icon name="sign-out" size={30} color="#888" style={styles.logoutIcon} />
       </TouchableOpacity>
+    
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNavigation}>
-        <TouchableOpacity style={styles.navigationItem}>
-          <Icon name="home" size={20} color="#888" style={styles.searchIcon} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navigationItem}>
-          <Icon name="list" size={20} color="#888" style={styles.searchIcon} />
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity 
+        style={styles.navigationItem} 
+        onPress={() => navigation.navigate('home')} // Navigasi ke layar Home
+      >
+      <Icon name="home" size={20} color="#888" style={styles.searchIcon} />
+      </TouchableOpacity>
+
+    {/* Tombol List Pelajar */}
+      <TouchableOpacity 
+       style={styles.navigationItem} 
+        onPress={() => navigation.navigate('listpelajar')} // Navigasi ke layar List Pelajar
+      >
+      <Icon name="list" size={20} color="#888" style={styles.searchIcon} />
+      </TouchableOpacity>
+    </View>
     </View>
   );
 };
@@ -308,6 +358,8 @@ const styles = StyleSheet.create({
     width: 1000,
     height: 1000,
     flex: 1,
+    marginRight: -675,
+    left: -330,
   },
   sectionTitle1: {
     fontSize: 20,
@@ -317,92 +369,135 @@ const styles = StyleSheet.create({
     marginTop: -76,
     marginLeft: 19,
   },
-  sectionTitle2: {
-    fontSize: 12,
-    fontWeight: 'medium',
-    color: '#F6EFBD',
-    marginTop: -19,
-    marginLeft: 308,
-  },
   courseItem: {
-    flexDirection: 'colomn',
+    flexDirection: 'column',  // Same layout for all course items
     justifyContent: 'space-around',
     alignItems: 'center',
     padding: 10,
     backgroundColor: '#FFF7C0',
     color: '#727272',
-    marginHorizontal: 10,
     marginTop: 3,
-    marginLeft: -649,
     width: 300,
-    height: 170,
+    height: 200,
     borderRadius: 20,
   },
-  courseItem1: {
-    flexDirection: 'colomn',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#FFF7C0',
-    color: '#727272',
-    marginTop: 3,
-    marginLeft: -2016,
-    width: 300,
-    height: 170,
-    borderRadius: 18,
-  },
-    courseImage: {
-    width: 260,
-    height: 110,
-    borderRadius: 13,
-    marginTop: 2,
-  },
-    courseImage1: {
-    width: 260,
-    height: 110,
-    borderRadius: 13,
-    marginLeft: 0,
+  courseImage: {
+    width: 130,
+    height: 175,
+    borderRadius: 16,
+    left: -75,
+    top: -2,
   },
   courseTitle: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
     color: '#234873',
-    marginLeft: -174,
-    marginTop: -3,
+    marginLeft: 140,
+    marginTop: -185,
   },
   courseTitle_: {
-    fontSize: 16,
-    fontWeight: 'italic',
-    color: '#234873',
-    marginLeft: -208,
-    marginTop: -6,
+    fontSize: 20,
+    marginLeft: 65,
+    top: -10
   },
-    coursePrice: {
-    fontSize: 14,
-    color: '#234873',
-    marginLeft: 170,
-    marginTop: -18,
-  },
-
-    courseTitle1: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#234873',
-    marginLeft: -134,
-    marginTop: -3,
-  },
-    courseTitle1_1: {
-      fontSize: 16,
-      fontWeight: 'italic',
-      color: '#234873',
-      marginLeft: -110,
-      marginTop: -6,
+  courseTitle1_: {
+    fontSize: 20,
+    marginLeft: 65,
+    top: -12
   },
   coursePrice1: {
     fontSize: 14,
     color: '#234873',
-    marginLeft: 170,
-    marginTop: -18,
+    top: 32,
+    left: 48,
+  },
+  coursePrice: {
+    fontSize: 14,
+    color: '#234873',
+    top: 32,
+    left: 48,
+  },
+  buttonText2: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#F6EFBD',
+    top: 8,
+    left: 15,
+  },
+  buttonText1: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#F6EFBD',
+    top: 8,
+    left: 15,
+  },
+  buttonText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#F6EFBD',
+    top: 7,
+    left: 15
+  },
+  courseUseclass1: {
+    fontSize: 14,
+    color: '#234873',
+    top: 30,
+    left: 38,
+    top: 32,
+  },
+  courseUseclass: {
+    fontSize: 14,
+    color: '#234873',
+    top: 30,
+    left: 38,
+    top: 32,
+  },
+  methodButton: {
+    backgroundColor: '#234873',
+    width: 75,
+    height: 35,
+    borderRadius: 19,
+    top: -50,
+    left: 37,
+  },
+  methodButton1: {
+    backgroundColor: '#234873',
+    width: 75,
+    height: 35,
+    borderRadius: 19,
+    top: -50,
+    left: 37,
+  },
+  buyButton: {
+    backgroundColor: '#5C88C4',
+    borderRadius: 10,
+    width: 60,
+    height: 34,
+    left: 112,
+
+
+  },
+
+  // Add selectedItem style for highlighting the selected item
+  selectedItem: {
+    borderWidth: 2,
+    borderColor: '#234873',
+  },
+  logoutButton: {
+    backgroundColor: '#F6EFBD',
+    width: 70,
+    height: 55,
+    borderRadius: 10,
+    alignItems: 'center',
+    top: -600,
+    left: 290,
+  },
+  logoutIcon: {
+    color: '#888',
+    fontSize: 40,
+    fontWeight: 'bold',
+    top: 5,
+    left: -5
   },
   bottomNavigation: {
     flexDirection: 'row',
@@ -411,30 +506,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#727272',
     marginLeft: 120,
-    marginVertical: -10,
-    paddingVertical: 0,
+    marginVertical:-20,
     height: 35,
     width: 120,
     borderRadius: 10,
+    top: -30
   },
   navigationItem: {
     tintColor: '#234873',
-    marginTop: 6,
-    marginLeft: 10,
     height: 20,
     width: 50,
-  },
-  logoutIcon: {
-    left: 9,
-    top: -600,
-  },
-  logoutButton: {
-    padding: 0, // Pastikan ada padding untuk area klik yang lebih besar
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute', // Pastikan posisi tombol logout tidak terhalang
-    bottom: 20, // Atur posisi tombol logout
-    right: 20, // Atur posisi tombol logout
+    top: 6,
+    left: 5,
   },
    rectangle: {
     position: 'absolute',

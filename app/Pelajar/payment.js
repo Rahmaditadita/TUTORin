@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, FlatList, Clipboard } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
+import HomePage from './HomePage'; // Import HomePage
 
 const PaymentScreen = ({ onPaymentSuccess }) => {
   const [selectedBank, setSelectedBank] = useState(null);

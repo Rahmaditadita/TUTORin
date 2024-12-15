@@ -1,0 +1,168 @@
+import React from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, Image } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
+
+const Tab = createBottomTabNavigator();
+
+const courses = [
+  {
+    id: '1',
+    title: 'Biology',
+    lessons: '6/10 lessons',
+    progress: '40%',
+    image: require('../assets/bio.png'),
+  },
+  {
+    id: '2',
+    title: 'Mathematics',
+    lessons: '5/10 lessons',
+    progress: '90%',
+    image: require('../assets/math.png'),
+  },
+  {
+    id: '3',
+    title: 'English',
+    lessons: '6/10 lessons',
+    progress: '80%',
+    image: require('../assets/inggris.png'),
+  },
+];
+
+// Komponen untuk menampilkan daftar kursus
+const MyCourses = () => {
+  const handlePress = (courseTitle) => {
+    alert('You selected ${courseTitle}');
+  };
+
+  const renderCourse = ({ item }) => (
+    <TouchableOpacity style={styles.courseContainer} onPress={() => handlePress(item.title)}>
+      <Image source={item.image} style={styles.courseImage} />
+      <View style={styles.courseContent}>
+        <Text style={styles.courseTitle}>{item.title}</Text>
+        <Text style={styles.courseLessons}>{item.lessons}</Text>
+        <View style={styles.progressBarContainer}>
+          <View style={[styles.progressBar, { width: item.progress }]} />
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={courses}
+        renderItem={renderCourse}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+      />
+    </SafeAreaView>
+  );
+};
+
+// Komponen HomeScreen
+const HomeScreen = () => {
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Welcome to Home!</Text>
+    </SafeAreaView>
+  );
+};
+
+// Komponen utama untuk tab navigator
+const listpelajar = () => {
+  return (
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+
+            if (route.name === 'Home') {
+              iconName = focused ? 'home' : 'home-outline';
+            } else if (route.name === 'MyCourses') {
+              iconName = focused ? 'list' : 'list-outline';
+            }
+
+            return <Ionicons name={iconName} size={size} color={color} />;
+          },
+          tabBarActiveTintColor: '#234873',
+          tabBarInactiveTintColor: 'gray',
+          tabBarStyle: { backgroundColor: '#FAEEC6' },
+        })}
+      >
+        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="MyCourses" component={MyCourses} />
+      </Tab.Navigator>
+  );
+};
+
+// Style untuk komponen
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#282A64',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  listContent: {
+    padding: 16,
+    backgroundColor: '#FAEEC6',
+  },
+  courseContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    marginBottom: 16,
+    overflow: 'hidden',
+    elevation: 3,
+  },
+  courseImage: {
+    width: '100%',
+    height: 150,
+    resizeMode: 'cover',
+  },
+  courseContent: {
+    padding:  16,
+  },
+  courseTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 8,
+  },
+  courseLessons: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  progressBarContainer: {
+    height: 10,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#4CAF50',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: 'white',
+  },
+});
+
+export default listpelajar;
+
+
+
+paltte\
+#5C88C4
+#727272 //ikon
+#FFF7C0
+#F6EFBD
+#6FDCE3
+#5C88C4
+#96CEB4
+#234873
