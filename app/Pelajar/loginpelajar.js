@@ -5,6 +5,10 @@ import { auth } from '../service/firebaseconfig'; // Import Firebase Auth
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
+import { db } from '../service/firebaseconfig';
+import { collection, addDoc, getDocs, doc } from 'firebase/firestore';
+import { firestore } from '../service/firebaseconfig'; // Menggunakan firestore yang diekspor
+
 
 const Login = () => {
   const [isOnRegisterScreen, setIsOnRegisterScreen] = useState(false);
@@ -14,7 +18,17 @@ const Login = () => {
   const navigation = useNavigation();
   const [username, setUsername] = useState(''); // Define username state
   const [showDropdown, setShowDropdown] = useState(false);
-  
+
+  const fetchUsers = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(firestore, 'users'));
+    querySnapshot.forEach((doc) => {
+      console.log(`${doc.id} => ${JSON.stringify(doc.data())}`);
+    });
+  } catch (error) {
+    console.error('Error fetching documents: ', error);
+  }
+};
 
   const [userDetails, setUserDetails] = useState({
     email: '',
@@ -31,28 +45,45 @@ const Login = () => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUsername(user.email); // Atau gunakan user.displayName jika Anda menyimpannya
+        // Memanggil fetchUsers setelah pengguna berhasil login
+        fetchUsers(); // Menampilkan data dari Firestore setelah pengguna login
       } else {
         setUsername('');
       }
     });
-
+  
     return () => unsubscribe(); // Bersihkan listener saat komponen di-unmount
   }, []);
 
   const handleRegister = async () => {
-    const { email, class: userClass, password, firstName, lastName, school, address } = userDetails;
-
+    const { email, password, firstName, lastName, school, address, class: userClass } = userDetails;
+  
     if (!email || !userClass || !firstName || !lastName || !school || !address || !password) {
       Alert.alert('Error', 'Please fill in all fields.');
       return;
     }
-
+  
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      console.log('User  registered:', userCredential.user);
-      navigation.navigate('gender', { username });
+      console.log('User registered:', userCredential.user);
+  
+      // Tentukan role pengguna (misalnya pelajar atau tutor)
+      const role = 'pelajar'; // Ganti dengan 'tutor' jika role-nya tutor
+  
+      // Simpan detail pengguna di Firestore
+      await saveUserDetails({
+        email,
+        firstName,
+        lastName,
+        school,
+        address,
+        class: userClass,
+      }, role); // Kirim role ke fungsi saveUserDetails
+  
       Alert.alert('Success', 'Account created successfully! Please log in.');
-
+      navigation.navigate('gender', { username });
+  
+      // Reset form
       setUserDetails({
         email: '',
         password: '',
@@ -62,13 +93,12 @@ const Login = () => {
         address: '',
         class: '',
       });
-
       setIsOnRegisterScreen(false); // Switch to login screen
     } catch (error) {
       console.error('Error during registration:', error);
       Alert.alert('Error', 'Registration failed. Please try again.');
     }
-  };
+  };  
 
   const handleLogin = async () => {
     if (!email || !password) {

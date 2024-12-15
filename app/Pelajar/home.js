@@ -5,6 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import { auth } from '../service/firebaseconfig'; // Import your Firebase config
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { firestore } from '../service/firebaseconfig';
+import { doc, getDoc } from 'firebase/firestore';
 
 
 const HomeScreen = () => {
@@ -12,6 +14,7 @@ const HomeScreen = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [username, setUsername] = useState('User'); 
   const [isLogoutPressed, setIsLogoutPressed] = useState(false);
+  
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -29,7 +32,7 @@ const HomeScreen = () => {
   
     return () => unsubscribe(); // Bersihkan listener saat komponen di-unmount
   }, []);
-  
+
   const handleout = () => {
     Alert.alert(
       "Confirm Logout",

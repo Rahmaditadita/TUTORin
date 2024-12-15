@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet,ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import ikon
 import { auth } from '../service/firebaseconfig'; // Import Firebase Auth
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
+import { db } from '../service/firebaseconfig';
+import { collection, addDoc, getDocs, doc } from 'firebase/firestore';
+import { firestore } from '../service/firebaseconfig'; // Menggunakan firestore yang diekspor
 
 const LoginT = () => {
   const [isOnRegisterScreen, setIsOnRegisterScreen] = useState(false);
@@ -13,6 +16,17 @@ const LoginT = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
   const [username, setUsername] = useState(''); // Define username state
+
+  const fetchUsers = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(firestore, 'users'));
+      querySnapshot.forEach((doc) => {
+        console.log(`${doc.id} => ${JSON.stringify(doc.data())}`);
+      });
+    } catch (error) {
+      console.error('Error fetching documents: ', error);
+    }
+  };
 
   const [userDetails, setUserDetails] = useState({
     email: '',
@@ -36,7 +50,7 @@ const LoginT = () => {
   }, []);
 
   const handleRegister = async () => {
-    const { email, class: userClass, password, firstName, lastName, school, address } = userDetails;
+    const { email, password, firstName, lastName, address } = userDetails;
 
     if (!email || !firstName || !lastName || !address || !password) {
       Alert.alert('Error', 'Please fill in all fields.');
@@ -46,7 +60,15 @@ const LoginT = () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.log('User  registered:', userCredential.user);
-      navigation.navigate('gender', { username });
+      const role = 'tutor';
+      await saveUserDetails({
+        email,
+        firstName,
+        lastName,
+        address,
+        password,
+      }, role); 
+      navigation.navigate('gendermen', { username });
       Alert.alert('Success', 'Account created successfully! Please log in.');
 
       setUserDetails({
@@ -63,6 +85,22 @@ const LoginT = () => {
       Alert.alert('Error', 'Registration failed. Please try again.');
     }
   };
+
+    const saveUserDetails = async (userDetails, role) => {
+      try {
+        // Tentukan koleksi berdasarkan role (pelajar atau tutor)
+        const collectionPath = role === 'pelajar' 
+          ? 'Users/loginpelajar/pelajar' 
+          : 'Users/loginpelajar/tutor';
+        
+        const userRef = collection(firestore, collectionPath);
+        await addDoc(userRef, userDetails); // Menyimpan data ke Firestore
+        console.log(`${role} data saved successfully in Firestore!`);
+      } catch (error) {
+        console.error('Error saving user details:', error.message);
+        Alert.alert('Error', 'Failed to save user details in Firestore.');
+      }
+    };
 
   const handleLogin = async () => {
     if (!email || !password) {
