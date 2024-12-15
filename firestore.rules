@@ -1,9 +1,23 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Mengizinkan akses hanya untuk pengguna yang terautentikasi
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if request.auth != null;
+    }
+
+    // Mengizinkan akses hanya untuk pengguna yang ada di koleksi allow-users
+    function isAllowedUser  () {
+      return exists(/databases/$(database)/documents/allow-users/$(request.auth.uid));
+    }
+
+    match /{document=**} {
+      allow read, write: if request.auth != null && isAllowedUser  ();
+    }
+
+    // Mengizinkan akses hanya untuk pengguna yang memiliki UID yang cocok
+    match /users/{uid} {
+      allow read, write: if request.auth.uid == uid;
     }
   }
 }

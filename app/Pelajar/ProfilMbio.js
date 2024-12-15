@@ -6,7 +6,7 @@ import { auth, firestore } from '../service/firebaseconfig'; // Adjust the impor
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const ProfilementorScreen = () => {
+const Profilebio = () => {
   const [activeTab, setActiveTab] = useState('About');
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -14,7 +14,7 @@ const ProfilementorScreen = () => {
   const [totalReviews, setTotalReviews] = useState(100);
   const [commentsList, setCommentsList] = useState([]);
   const [userData, setUserData] = useState(null);
-  const mentorId = 'mentor_id';
+  const mentorId = 'hermawan_Id';
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -198,8 +198,8 @@ const ProfilementorScreen = () => {
         <Text style={styles.headerTitle}>Mentor Profile</Text>
       </View>
         <Image
-          source={require('../assets/aini.png')} style={styles.profileImage}/>
-          <Text style={styles.mentorName}>Miss Aini</Text>
+          source={require('../assets/hermaw.png')} style={styles.profileImage}/>
+          <Text style={styles.mentorName}>Mr. Hermawan</Text>
         {/* Stats */}
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
@@ -232,12 +232,22 @@ const ProfilementorScreen = () => {
         {/* Tab Content */}
         
         {activeTab === 'About' && (
-          <View style={styles.tabContent}>
+        <View style={styles.tabContent}>
             <Text style={[styles.tabTitle, { textAlign: 'center' }]}>About Me</Text>
-            <Text style={[styles.tabDescription, { textAlign: 'center' }]}>
-              I am a passionate mentor with over 5 years of experience in the field. I love sharing knowledge and helping others achieve their goals.
+    
+            <Text style={[styles.tabDescription, { textAlign: 'justify', marginBottom: 10}]}>
+            I am an experienced mentor specializing in <Text style={{ fontWeight: 'bold' }}>Biology</Text>, dedicated to helping students grasp both
+            fundamental and advanced concepts in this subject. With a patient and interactive approach,
+            I aim to make learning both accessible and enjoyable.
             </Text>
-          </View>
+
+            <Text style={[styles.tabDescription, { textAlign: 'justify', marginBottom: 10 }]}>
+            <Text style={{ fontWeight: 'bold' }}>Biology:</Text> Biology is the science of life, and I believe that with the right guidance,
+            even complex biological systems can be easily understood. I assist students with topics
+            ranging from cellular biology to advanced topics like genetics, evolution, and ecology,
+            with a focus on real-world applications and the natural world.
+            </Text>
+        </View>
         )}
         {activeTab === 'Course' && (
           <View style={styles.tabContent}>
@@ -470,4 +480,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfilementorScreen;
+export default Profilebio;

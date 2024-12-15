@@ -60,7 +60,7 @@ export default function LogopertamaScreen() {
            {showButtons && ( // Render tombol berdasarkan state
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity style={styles.button} onPress={(handlePelajar)}>
-                        <Text style={styles.buttonText}>Pelajar</Text>
+                        <Text style={styles.buttonText}>Student</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.button} onPress={(handleTutor)}>
                         <Text style={styles.buttonText}>Tutor</Text>

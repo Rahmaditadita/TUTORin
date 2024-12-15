@@ -25,7 +25,7 @@ const KategoriKursus = ({ imageSource, name, rating, reviews, onPress, onViewMor
 };
 
 // Fiturkursus component menerima 'navigation' sebagai props untuk navigasi antar halaman
-const BioScreen = () => {
+const matorScreen = () => {
   const navigation = useNavigation();
   const [selectedCourse, setSelectedCourse] = useState(null); // Define selectedCourse state
 
@@ -76,7 +76,7 @@ const BioScreen = () => {
           }}
           onViewMore={() => {
             console.log('View More Mr. Hermawan');
-            navigation.navigate('ProfilMbio'); // Ganti dengan nama rute yang sesuai
+            navigation.navigate('Profilmentor'); // Ganti dengan nama rute yang sesuai
           }}
         />
 
@@ -196,4 +196,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BioScreen;
+export default matorScreen;

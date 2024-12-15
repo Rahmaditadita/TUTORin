@@ -1,36 +1,26 @@
-// firebaseconfig.js
 import { initializeApp } from 'firebase/app'; // Import initializeApp
-import { getFirestore, collection, getDocs} from 'firebase/firestore'; // Import Firestore
+import { getFirestore } from 'firebase/firestore'; // Import Firestore
 import { getAuth } from 'firebase/auth'; // Import Auth
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage untuk persistensi
-import { getReactNativePersistence } from 'firebase/auth'; // Import persistence
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
 
+// Konfigurasi Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDDf8uhRZBhlBDMyMGamVSWO3bDZNV5eRE",
   authDomain: "tutorin-ab60c.firebaseapp.com",
+  databaseURL: "https://tutorin-ab60c-default-rtdb.firebaseio.com",
   projectId: "tutorin-ab60c",
-  storageBucket: "tutorin-ab60c.appspot.com",
+  storageBucket: "tutorin-ab60c.firebasestorage.app",
   messagingSenderId: "531323365692",
   appId: "1:531323365692:web:809b2e3ebac1a3094ad639",
   measurementId: "G-3VQRK7BYCJ"
 };
 
-// Mengecek jika Firebase sudah diinisialisasi
-let app;
-if (typeof initializeApp === "function" && !initializeApp.apps || initializeApp.apps.length === 0) {
-  app = initializeApp(firebaseConfig); // Inisialisasi jika belum ada
-} else {
-  app = initializeApp.app(); // Jika sudah ada, ambil yang sudah diinisialisasi
-}
+// Inisialisasi Firebase App
+const app = initializeApp(firebaseConfig);
 
-// Inisialisasi Firestore dan Auth
+// Inisialisasi Firestore
 const firestore = getFirestore(app);
-const auth = getAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage) // Setup persistence
-});
 
+// Inisialisasi Auth
+const auth = getAuth(app);
 
-// Ekspor objek untuk digunakan di tempat lain
 export { firestore, auth };

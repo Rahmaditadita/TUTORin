@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';  // Tambahkan import ini
 
-const GenderSelectionScreen = () => {
+const GenderMenScreen = () => {
   const [selectedGender, setSelectedGender] = useState(null);
   const navigation = useNavigation();
 
@@ -37,7 +37,7 @@ const GenderSelectionScreen = () => {
       onPress={() => {
         if (selectedGender) {
         console.log('Gender selected:', selectedGender);
-        navigation.navigate('loginpelajar'); // Navigasi ke layar Home
+        navigation.navigate('logintutor'); // Navigasi ke layar Home
       } else {
         alert('Please select a gender before proceeding.'); // Peringatan jika gender belum dipilih
       }
@@ -98,4 +98,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default GenderSelectionScreen;
+export default GenderMenScreen;

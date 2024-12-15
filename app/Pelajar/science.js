@@ -29,10 +29,6 @@ const scienceScreen = ({}) => {
     console.log('Physics');
   };
 
-  const handleMathematics = () => {
-    console.log('Mathematics');
-  };
-
   const handleHistory = () => {
     console.log('History');
   };
@@ -44,7 +40,7 @@ const scienceScreen = ({}) => {
           <TouchableOpacity onPress= {handleBack}>
             <Ionicons name="arrow-back" size={30} color="#234873" />
           </TouchableOpacity>
-          <Text style={styles.header1}>Science</Text>
+          <Text style={styles.header1}>Scicos</Text>
         </View>
 
         {/* BIOOOO*/}
@@ -57,13 +53,8 @@ const scienceScreen = ({}) => {
           styleKategori={styles.bio} styleText={styles.bio3} 
           onPress={handlePhysics} marginBottom={30} 
           />
-          <KategoriKursus namaKategori="Mathematics"
-          styleKategori={styles.bio} styleText={styles.bio2}
-          onPress={handleMathematics} marginBottom={30}
-          />
-
           <KategoriKursus namaKategori="History"
-          styleKategori={styles.bio} styleText={styles.bio4}
+          styleKategori={styles.bio} styleText={styles.bio2}
           onPress={handleHistory} marginBottom={30}
           />
         </View>
@@ -122,7 +113,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', // Menebalkan font kategori
     color: '#F6EFBD', // Warna teks kategori
     alignItems: 'center',
-    marginLeft: 100,
+    marginLeft: 130,
     flex: 1,
   },
   bio3: {
@@ -131,15 +122,6 @@ const styles = StyleSheet.create({
     color: '#F6EFBD', // Warna teks kategori
     alignItems: 'center',
     marginLeft: 126,
-    flex: 1,
-  },
-
-  bio4: {
-    fontSize: 23, // Ukuran font kategori
-    fontWeight: 'bold', // Menebalkan font kategori
-    color: '#F6EFBD', // Warna teks kategori
-    alignItems: 'center',
-    marginLeft: 128,
     flex: 1,
   },
 

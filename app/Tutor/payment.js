@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, FlatList, Clipboard, TextInput } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Import the icon library
+import { View, Text, TouchableOpacity, StyleSheet, Alert, FlatList, Clipboard } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
 
-const PayScreen = ({ onPaymentSuccess }) => {
+const PaymentScreen = ({ onPaymentSuccess }) => {
   const [selectedBank, setSelectedBank] = useState(null);
   const [paymentCode, setPaymentCode] = useState('');
   const [showBankDropdown, setShowBankDropdown] = useState(false);
@@ -30,8 +31,7 @@ const PayScreen = ({ onPaymentSuccess }) => {
   const handleBankSelect = (bank) => {
     setSelectedBank(bank);
     setShowBankDropdown(false);
-    // Generate a payment code (for demonstration purposes)
-    const code = Math.floor(100000 + Math.random() * 900000).toString(); // Random 6-digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
     setPaymentCode(code);
   };
 
@@ -54,15 +54,18 @@ const PayScreen = ({ onPaymentSuccess }) => {
       Alert.alert('Error', 'Please select session time and learning method.');
       return;
     }
-    Alert.alert('Payment Successful', 'You have selected ${selectedBank.name} with code: ${paymentCode}');
-    
-    // Call the onPaymentSuccess function to add the course to the list
-    onPaymentSuccess({
+
+    const paymentDetails = {
       bank: selectedBank.name,
       paymentCode,
       sessionTime: selectedSessionTime.name,
       learningMethod: selectedLearningMethod.name,
-    });
+      amount: 100000, // Contoh jumlah uang yang diterima
+    };
+
+    Alert.alert('Payment Successful', 'You have selected ${selectedBank.name} with code: ${paymentCode}');
+    
+    onPaymentSuccess(paymentDetails); // Memanggil fungsi untuk mengupdate state di HomePage
   };
 
   const copyToClipboard = () => {
@@ -110,10 +113,10 @@ const PayScreen = ({ onPaymentSuccess }) => {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.bankOption}
-              onPress={() => handleSessionSelect(item)}
+              onPress={() => handleSessionSelect(item )}
             >
               <Text style={styles.bankOptionText}>{item.name}</Text>
-            </ TouchableOpacity>
+            </TouchableOpacity>
           )}
         />
       )}
@@ -141,17 +144,12 @@ const PayScreen = ({ onPaymentSuccess }) => {
         />
       )}
 
-      {paymentCode ? (
-        <View style={styles.codeContainer}>
-          <Text style={styles.codeText}>Payment Code: {paymentCode}</Text>
-          <TouchableOpacity onPress={copyToClipboard} style={styles.copyButton}>
-            <Icon name="content-copy" size={24} color="#000" />
-          </TouchableOpacity>
-        </View>
-      ) : null}
+      <TouchableOpacity style={styles.paymentButton} onPress={handlePayment}>
+        <Text style={styles.paymentButtonText}>Proceed to Payment</Text>
+      </TouchableOpacity>
 
-      <TouchableOpacity style={styles.payButton} onPress={handlePayment}>
-        <Text style={styles.payButtonText}>Proceed to Payment</Text>
+      <TouchableOpacity style={styles.copyButton} onPress={copyToClipboard}>
+        <Text style={styles.copyButtonText}>Copy Payment Code</Text>
       </TouchableOpacity>
     </View>
   );
@@ -161,81 +159,58 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#F6EFBD',
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 0,
-    marginVertical: -10,
-    marginTop: 20,
-    top: 1,
-    color: '#234873',
+    marginBottom: 10,
   },
   dropdownButton: {
-    backgroundColor: '#234873',
-    borderRadius: 10,
-    padding: 15,
-    marginVertical: 5,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#5C88C4',
   },
   dropdownText: {
-    fontSize: 18,
-    color: '#F6EFBD'
+    fontSize: 16,
   },
   arrow: {
-    fontSize: 18,
-    color: '#F6EFBD'
+    fontSize: 16,
   },
   bankOption: {
-    backgroundColor: '#fff',
-    padding: 15,
+    padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#5C88C4',
+    borderBottomColor: '#ccc',
   },
   bankOptionText: {
-    fontSize: 18,
+    fontSize: 16,
   },
-  input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    marginVertical: 10,
-  },
-  codeContainer: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#e0f7fa',
-    borderRadius: 10,
-    flexDirection: 'row',
+  paymentButton: {
+    backgroundColor: '#28a745',
+    padding: 15,
+    borderRadius: 5,
     alignItems: 'center',
-    justifyContent: 'space-between',
+    marginTop: 20,
   },
-  codeText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  paymentButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
   copyButton: {
-    padding: 10,
-  },
-  payButton: {
-    backgroundColor: '#5C88C4',
-    borderRadius: 10,
+    backgroundColor: '#007bff',
     padding: 15,
+    borderRadius: 5,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 10,
   },
-  payButtonText: {
-    color: '#F6EFBD',
-    fontSize: 18,
-    fontWeight: 'bold',
+  copyButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 
-export default PayScreen;
+export default PaymentScreen;

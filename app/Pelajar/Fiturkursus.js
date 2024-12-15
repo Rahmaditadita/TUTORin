@@ -46,7 +46,7 @@ const FiturkursusScreen = () => {
   const handleCoursePress = (course) => {
     switch (course.title) {
       case 'Biology':
-        navigation.navigate('bio'); // Arahkan ke bio.js
+        navigation.navigate('videoBio'); // Arahkan ke bio.js
         break;
       case 'Mathematics':
         navigation.navigate('math'); // Arahkan ke math.js

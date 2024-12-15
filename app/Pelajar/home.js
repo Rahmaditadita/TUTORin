@@ -1,38 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, StyleSheet} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, StyleSheet, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
-import { db, collection, getDocs } from 'firebase/firestore';
-// import { firestore } from './service/firebaseconfig'; // Import Firestore
+import { auth } from '../service/firebaseconfig'; // Import your Firebase config
+import { signOut, onAuthStateChanged } from 'firebase/auth';
 
 const HomeScreen = () => {
-  const navigation = useNavigation(); // Initialize navigation
-  // const [selectedCategory, setSelectedCategory] = useState(null);
+  const navigation = useNavigation();
   const [selectedCourse, setSelectedCourse] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [username, setUsername] = useState('');
-  const [courses, setCourses] = useState([]); // State to store courses
-  const [filteredCourses, setFilteredCourses] = useState([]); // Filtered courses based on search query
+  const [username, setUsername] = useState('User'); 
+  const [isLogoutPressed, setIsLogoutPressed] = useState(false);
 
-  const handlelogout = async () => {
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Ambil displayName
+        const displayName = user.displayName || '';
+        
+        // Pisahkan nama depan dari displayName
+        const firstName = displayName.split(' ')[0]; // Mengambil kata pertama sebagai nama depan
+        setUsername(firstName); // Set username ke nama depan
+      } else {
+        setUsername(''); // Reset username jika tidak ada pengguna yang login
+      }
+    });
+  
+    return () => unsubscribe(); // Bersihkan listener saat komponen di-unmount
+  }, []);
+  
+  const handleout = () => {
     Alert.alert(
       "Confirm Logout",
-      "Are you sure you want to leave?",
+      "Are you sure you want to log out?",
       [
         {
-          text: "Batal",
+          text: "Cancel",
           onPress: () => console.log("Logout cancelled."),
           style: "cancel"
         },
         {
-          text: "Ya",
+          text: "Yes",
           onPress: async () => {
             try {
-              await signOut(auth);
-              console.log('User   signed out');
-              navigation.navigate('login');
+              await signOut(auth); // Sign out from Firebase
+              console.log('User  signed out');
+              navigation.navigate('loginpelajar'); // Navigate to login screen
             } catch (error) {
               console.error('Error signing out:', error);
+              Alert.alert('Error', 'Failed to log out. Please try again.');
             }
           }
         }
@@ -40,12 +55,13 @@ const HomeScreen = () => {
     );
   };
 
-  const handleLogout = () => {
-    navigation.navigate('login');
-  };
-
   const handleSearchChange = (text) => {
     setSearchQuery(text); // Update the search query
+  };
+
+  const handleSearch = () => {
+    // Navigasi ke search.js tanpa memerlukan input
+    navigation.navigate('search');
   };
 
 
@@ -61,15 +77,10 @@ const HomeScreen = () => {
       <View style={styles.rectangle} />
 
       {/* Kolom Pencarian */}
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search Courses..."
-          value={searchQuery}
-          onChangeText={handleSearchChange}
-        />
+      <TouchableOpacity style={styles.searchContainer} onPress={handleSearch}>
+        <Text style={styles.searchInput}>Search Courses...</Text>
         <Icon name="search" size={20} color="#888" style={styles.searchIcon} />
-      </View>
+      </TouchableOpacity>
 
       {/* Greeting Section */}
       <View style={styles.greetingSection}>
@@ -86,7 +97,7 @@ const HomeScreen = () => {
           navigation.navigate('science');
           }}>
           <Image source={require('../assets/ipa.png')} style={styles.categoryImage} />
-          <Text style={styles.categoryText}>Science</Text>
+          <Text style={styles.categoryText}>Scicos</Text>
         </TouchableOpacity>
       </View>
 
@@ -102,15 +113,15 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Container terpisah untuk Arts */}
       <View style={[styles.categoryContainer2, { zIndex: 1 }]}>
         <TouchableOpacity
-          style={[styles.categoryItem2, selectedCourse === 'Arts' && styles.selectedItem]}
-          onPress={() => { console.log('arts');
-          navigation.navigate('Arts');
+          style={[styles.categoryItem2, selectedCourse === 'math' && styles.selectedItem]}
+          onPress={() => { console.log('Math');
+          navigation.navigate('Math');
           }}>
-          <Image source={require('../assets/arts.png')} style={styles.categoryImage1} />
-          <Text style={styles.categoryText1}>Arts</Text>
+
+          <Image source={require('../assets/math.png')} style={styles.categoryImage1} />
+          <Text style={styles.categoryText}>Math</Text>
         </TouchableOpacity>
       </View>
 
@@ -134,7 +145,7 @@ const HomeScreen = () => {
               navigation.navigate('Fiturkursus');
             }}>
             <Image source={require('../assets/bio.png')} style={styles.courseImage} />
-            <Text style={styles.courseTitle}>Science</Text>
+            <Text style={styles.courseTitle}>Scicos</Text>
             <Text style={[styles.courseTitle_, { fontStyle: 'italic' }]}>Biology</Text>
             <Text style={styles.coursePrice}>30.000 - 85.000</Text>
           </TouchableOpacity>
@@ -147,12 +158,21 @@ const HomeScreen = () => {
               navigation.navigate('Fiturkursus');
             }}>
             <Image source={require('../assets/math.png')} style={styles.courseImage1} />
-            <Text style={styles.courseTitle1}>Science</Text>
+            <Text style={styles.courseTitle1}>Scicos</Text>
             <Text style={[styles.courseTitle1_1, { fontStyle: 'italic' }]}>Mathematic</Text>
             <Text style={styles.coursePrice1}>40.000 - 90.000</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <TouchableOpacity 
+        style={[styles.logoutButton, isLogoutPressed && styles.logoutButtonPressed]} 
+        onPress={handleout}
+        onPressIn={() => setIsLogoutPressed(true)} // Set state saat ditekan
+        onPressOut={() => setIsLogoutPressed(false)} // Reset state saat dilepaskan
+      >
+        <Icon name="sign-out" size={30} color="#888" style={styles.logoutIcon} />
+      </TouchableOpacity>
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNavigation}>
@@ -163,10 +183,6 @@ const HomeScreen = () => {
           <Icon name="list" size={20} color="#888" style={styles.searchIcon} />
         </TouchableOpacity>
       </View>
-
-      <TouchableOpacity style={styles.logoutButton} onPress={handlelogout}>
-        <Icon name="sign-out" size={20} color="#888" style={styles.logoutIcon} />
-      </TouchableOpacity>
     </View>
   );
 };
@@ -195,12 +211,12 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       backgroundColor: '#FFF7C0',
       borderRadius: 10,
-      padding: 15,
-      paddingVertical: 5,
+      padding: 12,
+      paddingVertical: 14,
       marginTop: 140,
-      marginHorizontal: 20, 
+      marginHorizontal: 22,
       alignItems: 'center',
-      width: '87%',
+      width: '89%',
   },
   searchInput: {
     flex: 1,
@@ -372,14 +388,14 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#234873',
-    marginLeft: -174,
+    marginLeft: -134,
     marginTop: -3,
   },
     courseTitle1_1: {
       fontSize: 16,
       fontWeight: 'italic',
       color: '#234873',
-      marginLeft: -180,
+      marginLeft: -110,
       marginTop: -6,
   },
   coursePrice1: {
@@ -409,7 +425,16 @@ const styles = StyleSheet.create({
     width: 50,
   },
   logoutIcon: {
-    left: 10,
+    left: 9,
+    top: -600,
+  },
+  logoutButton: {
+    padding: 0, // Pastikan ada padding untuk area klik yang lebih besar
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute', // Pastikan posisi tombol logout tidak terhalang
+    bottom: 20, // Atur posisi tombol logout
+    right: 20, // Atur posisi tombol logout
   },
    rectangle: {
     position: 'absolute',
