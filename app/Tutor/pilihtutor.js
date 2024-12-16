@@ -15,6 +15,7 @@ export default function PilihTutor({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [price, setPrice] = useState('');
+  const [classLevel, setClassLevel] = useState('');
 
   const availableCourses = [
     {
@@ -63,9 +64,11 @@ export default function PilihTutor({ navigation }) {
         category: selectedCourse.category,
         image: selectedCourse.image,
         price, // Pass price to next screen
+        classLevel, // Pass class level to next screen
       },
     });
     setPrice(''); // Reset price input
+    setClassLevel(''); // Reset class level input
   };
 
   return (
@@ -110,13 +113,19 @@ export default function PilihTutor({ navigation }) {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Set Price for {selectedCourse?.title}</Text>
+          <Text style={styles.modalTitle}>Set Price and Class Level for {selectedCourse?.title}</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter price"
               keyboardType="numeric"
               value={price}
               onChangeText={setPrice}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Enter class level (e.g., Beginner, Advanced)"
+              value={classLevel}
+              onChangeText={setClassLevel}
             />
             <TouchableOpacity style={styles.addButton} onPress={handleAddCourse}>
               <Text style={styles.addButtonText}>Save</Text>

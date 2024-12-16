@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, FlatList, Clipboard, TextInput } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Import the icon library
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, FlatList, Clipboard } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { getFirestore, doc, collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
+import { db } from '../service/firebaseconfig';
 
 const PayScreen = ({ onPaymentSuccess }) => {
   const [selectedBank, setSelectedBank] = useState(null);
   const [paymentCode, setPaymentCode] = useState('');
+  const [payments, setPayments] = useState([]);
   const [showBankDropdown, setShowBankDropdown] = useState(false);
   const [showSessionDropdown, setShowSessionDropdown] = useState(false);
   const [showMethodDropdown, setShowMethodDropdown] = useState(false);
@@ -30,8 +33,7 @@ const PayScreen = ({ onPaymentSuccess }) => {
   const handleBankSelect = (bank) => {
     setSelectedBank(bank);
     setShowBankDropdown(false);
-    // Generate a payment code (for demonstration purposes)
-    const code = Math.floor(100000 + Math.random() * 900000).toString(); // Random 6-digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
     setPaymentCode(code);
   };
 
@@ -45,32 +47,64 @@ const PayScreen = ({ onPaymentSuccess }) => {
     setShowMethodDropdown(false);
   };
 
-  const handlePayment = () => {
-    if (!selectedBank) {
-      Alert.alert('Error', 'Please select a bank to proceed.');
-      return;
-    }
-    if (!selectedSessionTime || !selectedLearningMethod) {
-      Alert.alert('Error', 'Please select session time and learning method.');
-      return;
-    }
+  const handlePayment = async () => {
+    const db = getFirestore();
 
-    // Call the onPaymentSuccess function to add the course to the list
+    const paymentsRef = collection(
+      db,
+      'Users',
+      'loginpelajar',
+      'pelajar',
+      'pengguna1',
+      'Payments'
+    );
+  
     const paymentDetails = {
-      bank: selectedBank.name,
-      paymentCode,
-      sessionTime: selectedSessionTime.name,
-      learningMethod: selectedLearningMethod.name,
-      amount: 100000, // Contoh jumlah uang yang diterima
+      userId: 'pengguna1', // Sesuaikan dengan ID pengguna saat ini
+      tutorId: 'Tutor123', // ID tutor
+      courseId: 'Biology', // ID kursus
+      amount: 100000, // Jumlah pembayaran
+      status: 'pending', // Status pembayaran
+      timestamp: serverTimestamp(),
     };
-      Alert.alert('Payment Successful', 'You have selected ${selectedBank.name} with code: ${paymentCode}');
-        
-      onPaymentSuccess(paymentDetails); // Memanggil fungsi untuk mengupdate state di HomePage
-    };
+  
+    try {
+      await addDoc(paymentsRef, paymentDetails);
+      console.log('Payment saved successfully');
+    } catch (error) {
+      console.error('Error saving payment:', error);
+    }
+  };
+
+  const fetchPayments = async () => {
+    const paymentsRef = collection(
+      db,
+      'Users',
+      'loginpelajar',
+      'pelajar',
+      'pengguna1',
+      'Payments'
+    );
+  
+    try {
+      const querySnapshot = await getDocs(paymentsRef);
+      querySnapshot.forEach((doc) => {
+        console.log(doc.id, ' => ', doc.data());
+      });
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+    }
+  };
+
   const copyToClipboard = () => {
     Clipboard.setString(paymentCode);
     Alert.alert('Copied!', 'Payment code has been copied to clipboard.');
   };
+
+  useEffect(() => {
+    fetchPayments();
+  }, []);
+
 
   return (
     <View style={styles.container}>

@@ -3,8 +3,10 @@ import { SafeAreaView, View, Text, TextInput, StyleSheet, TouchableOpacity, Flat
 import Icon from 'react-native-vector-icons/Ionicons';
 import { firestore } from '../service/firebaseconfig';
 import { collection, getDocs, addDoc} from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
 
-const Search = ({ navigation}) => {
+const Search = () => {
+  const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [subjects, setSubjects] = useState([]);
   const [searchHistory, setSearchHistory] = useState([]);
@@ -83,10 +85,38 @@ const Search = ({ navigation}) => {
       setRecommendations(filteredCategories); // Menampilkan kategori yang relevan
     };
 
-  const handleRecommendationPress = (category) => {
-    setSearchQuery(category);
-    setRecommendations([]);
+    const handleRecommendationPress = (category) => {
+      setSearchQuery(category); // Mengisi search query dengan kategori yang dipilih
+      setRecommendations([]);    // Mengosongkan daftar rekomendasi
+    
+      // Logika navigasi berdasarkan kategori yang dipilih
+      switch (category.toLowerCase()) {
+        case 'biologi':
+          navigation.navigate('bio');  // Navigasi ke screen 'bio'
+          break;
+        case 'history':
+          navigation.navigate('History');  // Navigasi ke screen 'History'
+          break;
+        case 'english':
+          navigation.navigate('English');  // Navigasi ke screen 'English'
+          break;
+        case 'mathematics':
+          navigation.navigate('Mathematics');  // Navigasi ke screen 'Mathematics'
+          break;
+        case 'korean':
+          navigation.navigate('Korean');  // Navigasi ke screen 'Korean'
+          break;
+        case 'arabic':
+          navigation.navigate('Arabic');  // Navigasi ke screen 'Arabic'
+          break;
+        case 'physics':
+          navigation.navigate('Physics');  // Navigasi ke screen 'Physics'
+          break;
+        default:
+          navigation.navigate('DefaultScreen');  // Optional: navigasi ke screen default jika tidak ada yang cocok
+      }
     };
+    
 
   // Filter data berdasarkan pencarian
   const filteredSubjects = subjects.filter((subject) =>
@@ -151,39 +181,13 @@ const Search = ({ navigation}) => {
       )}
 
       <FlatList
-        data={filteredSubjects}
-        keyExtractor={(item) => item.id}
+        data={recommendations}
+        keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity
-          onPress={() => {
-            // Pindahkan navigasi berdasarkan kategori course
-            switch(item.category) {
-              case 'Biologi':
-                navigation.navigate('bio');
-                break;
-              case 'History':
-                navigation.navigate('History');
-                break;
-              case 'English':
-                navigation.navigate('English');
-                break;
-              case 'Mathematics':
-                navigation.navigate('Mathematics');
-                break;
-              case 'Korean':
-                navigation.navigate('Korean');
-                break;
-              case 'Arabic':
-                navigation.navigate('Arabic');
-                break;
-              case 'Physics':
-                navigation.navigate('Physics');
-                break;
-              default:
-                navigation.navigate('DefaultScreen'); // Optional, bisa ganti dengan screen default
-            }
-          }}
-        >
+            style={styles.recommendationItem}
+            onPress={() => handleRecommendationPress(item)} // Panggil fungsi saat item dipilih
+          >
       <View style={styles.courseItem}>
         <Text style={styles.courseTitle}>{item.title}</Text>
         <Text>{item.category}</Text>

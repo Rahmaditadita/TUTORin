@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    padding: 25,
     backgroundColor: '#FBF3BC',
     elevation: 3, // Shadow for header
   },
@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#234873',
     marginLeft: 10,
+    marginTop: 1,
   },
   scrollContent: {
     paddingTop: 10, // Adds space below the header

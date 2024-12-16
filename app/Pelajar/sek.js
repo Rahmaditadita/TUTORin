@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Text, Image, ScrollView, TouchableOpacity, FlatList, TextInput, Alert} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';  // Ensure this is correct
-import Ionicons from 'react-native-vector-icons/Ionicons'; // For Ionicons
+import { SafeAreaView, View,  Text, Image, ScrollView, TouchableOpacity, FlatList, TextInput, Alert} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc, setDoc, collection, addDoc, getDocs } from 'firebase/firestore';
-import { auth, firestore } from '../service/firebaseconfig';
+import { auth, firestore } from '../service/firebaseconfig'; // Adjust the import based on your project structure
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const ProfilementorScreen = () => {
+const Screen = () => {
   const [activeTab, setActiveTab] = useState('About');
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -117,23 +116,10 @@ const ProfilementorScreen = () => {
   };
 
   const courses = [
-    { title: 'Biology Starter Pack', price: '20.000/meet', rating: '4.9 (100 Reviews)',
-      description: 'Bebas atur jadwal, bebas pilih sesi',
-      description: 'Mulai perjalanan belajarmu dengan paket coba-coba yang seru di TUTORin!',
-      details: [
-        '1 sesi privat',
-        '120 menit per sesi',
-        'Bebas atur jadwal',
-        'Bebas atur sesi'
-      ]},
-    { title: 'Biology Mastery Pack',  price: '75.000/week', rating: '4.9 (100 Reviews)',
-      description: 'Coba paket ini dan temukan cara mudah belajar biologi!',
-      details: [
-        '1 sesi privat',
-        '120 menit per sesi',
-        'Bebas atur jadwal',
-        'Bebas atur sesi'
-      ]},
+    { title: 'Biology', price: '20.000/meet', rating: '4.9 (100 Reviews)', image: require('../assets/bio.png') },
+    { title: 'Mathematics', price: '75.000/week', rating: '4.9 (100 Reviews)', image: require('../assets/math.png') },
+    { title: 'English', price: '350.000/month', rating: '4.9 (100 Reviews)', image: require('../assets/inggris.png') },
+    { title: 'Kimia', price: '100.000/week', rating: '4.9 (100 Reviews)', image: require('../assets/kimia.png') },
   ];
 
   const handleRating = (selectedRating) => {
@@ -213,7 +199,7 @@ const ProfilementorScreen = () => {
       </View>
         <Image
           source={require('../assets/aini.png')} style={styles.profileImage}/>
-          <Text style={styles.mentorName}>Miss Sekar</Text>
+          <Text style={styles.mentorName}>Miss Aini</Text>
         {/* Stats */}
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
@@ -253,39 +239,30 @@ const ProfilementorScreen = () => {
             </Text>
           </View>
         )}
-{activeTab === 'Course' && (
-  <View style={styles.tabContent}>
-    <Text style={styles.tabTitle}>Courses Offered</Text>
-    <FlatList
-      data={courses}
-      renderItem={({ item }) => (
-        <View style={styles.courseItem}>
-          <Text style={styles.courseTitle}>{item.title}</Text>
-          <Text style={styles.courseDescription}>{item.description}</Text>
-          <Text style={styles.coursePrice}>{item.price}</Text>
-          <View style={styles.ratingContainer}>
-            <Text style={styles.courseRating}>{item.rating}</Text>
+        {activeTab === 'Course' && (
+          <View style={styles.tabContent}>
+            <Text style={styles.tabTitle}>Courses Offered</Text>
+            <FlatList
+              data={courses}
+              renderItem={({ item }) => (
+                <View style={styles.courseItem}>
+                  <Text style={styles.courseTitle}>{item.title}</Text>
+                  <Text style={styles.courseDescription}>{item.price}</Text>
+                  <View style={styles.ratingContainer}>
+                    <Text style={styles.courseRating}>{item.rating}</Text>
+                  </View>
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity onPress={() => handleBuy(item.title)}>
+                      <Text style={styles.buyButton}>Buy</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+              keyExtractor={(item, index) => index.toString()}
+              nestedScrollEnabled={true}
+            />
           </View>
-          <View style={styles.courseDetailsContainer}>
-            {item.details.map((detail, index) => (
-              <View key={index} style={styles.detailItem}>
-                <Icon name="check" size={20} color="green" />
-                <Text style={styles.courseDetail}>{detail}</Text>
-              </View>
-            ))}
-          </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={() => handleBuy(item.title)}>
-              <Text style={styles.buyButton}>Buy</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-      keyExtractor={(item, index) => index.toString()}
-      nestedScrollEnabled={true}
-    />
-  </View>
-)}
+        )}
 
         {activeTab === 'Review' && (
           <View style={styles.tabContent}>
@@ -433,12 +410,6 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 5,
   },
-  coursePrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    top: 120,
-    left: 215,
-  },
   courseTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -447,26 +418,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  courseRating: {
-    color: '#000',
-    top: -5,
-    fontSize: 16,
-  },
   buyButton: {
     color: '#007BFF',
-    marginTop: 12,
-    top: 33,
-    fontSize: 18,
-  },
-  detailItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  courseDetail: {
-    marginLeft: 10, // Memberikan jarak antara ikon dan teks
-    fontSize: 14,
-    color: '#333',
+    marginTop: 5,
   },
   reviewItem: {
     marginBottom: 15,
@@ -516,4 +470,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfilementorScreen;
+export default sekScreen;

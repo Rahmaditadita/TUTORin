@@ -6,7 +6,7 @@ import { auth } from '../service/firebaseconfig'; // Import your Firebase config
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { firestore } from '../service/firebaseconfig';
-import { doc, getDoc } from 'firebase/firestore';
+import { collection,query, where, doc, getDocs } from 'firebase/firestore';
 
 
 const HomeScreen = () => {
@@ -14,23 +14,22 @@ const HomeScreen = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [username, setUsername] = useState('User'); 
   const [isLogoutPressed, setIsLogoutPressed] = useState(false);
+  const [firstName, setFirstName] = useState('');
   
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Ambil displayName
-        const displayName = user.displayName || '';
-        
-        // Pisahkan nama depan dari displayName
-        const firstName = displayName.split(' ')[0]; // Mengambil kata pertama sebagai nama depan
-        setUsername(firstName); // Set username ke nama depan
+        const firstName = user.displayName ? user.displayName.split(' ')[0] : ''; 
+        setUsername(firstName);
+        fetchUserDetails(user.email); // Mengambil email pengguna yang sedang login
       } else {
-        setUsername(''); // Reset username jika tidak ada pengguna yang login
+        setUsername(''); 
+        setFirstName('');
       }
     });
   
-    return () => unsubscribe(); // Bersihkan listener saat komponen di-unmount
+    return () => unsubscribe();
   }, []);
 
   const handleout = () => {
@@ -48,8 +47,7 @@ const HomeScreen = () => {
           onPress: async () => {
             try {
               await signOut(auth); // Logout dari Firebase
-              await AsyncStorage.clear(); // Hapus data lokal
-              console.log('User signed out and local data cleared');
+              console.log('User signed out');
               navigation.navigate('loginpelajar'); // Navigasi ke layar login
             } catch (error) {
               console.error('Error signing out:', error);
@@ -60,10 +58,36 @@ const HomeScreen = () => {
       ]
     );
   };
+  
 
 
   const handleSearchChange = (text) => {
     setSearchQuery(text); // Update the search query
+  };
+
+  const fetchUserDetails = async (email) => {
+    try {
+      // Referensi ke koleksi yang menyimpan data pengguna
+      const usersRef = collection(firestore, 'Users/loginpelajar/pelajar');
+      
+      // Membuat query untuk mencari dokumen berdasarkan field 'email'
+      const q = query(usersRef, where('email', '==', email)); 
+  
+      // Menjalankan query untuk mengambil dokumen
+      const querySnapshot = await getDocs(q);
+  
+      if (!querySnapshot.empty) {
+        querySnapshot.forEach(doc => {
+          const userData = doc.data();
+          setFirstName(userData.firstName); // Mengambil firstName dari Firestore
+        });
+      } else {
+        console.log('User not found');
+      }
+    } catch (error) {
+      console.error('Error fetching user details: ', error);
+      Alert.alert('Error', 'Failed to fetch user details.');
+    }
   };
 
   const handleSearch = () => {
@@ -91,10 +115,9 @@ const HomeScreen = () => {
 
       {/* Greeting Section */}
       <View style={styles.greetingSection}>
-        <Text style={styles.greeting}>Hello, {username}!</Text>
+        <Text style={styles.greeting}>Hello, {firstName || username}!</Text>
         <Text style={styles.subGreeting}>Let's start Learning</Text>
       </View>
-
       {/* Explore Category */}
       <Text style={[styles.sectionTitle, { zIndex: 1 }]}>Explore Category</Text>
       <View style={[styles.categoryContainer, { zIndex: 1 }]}>
@@ -134,15 +157,6 @@ const HomeScreen = () => {
 
       {/* Featured Courses */}
       <Text style={[styles.sectionTitle1, { zIndex: 1 }]}>Recommendation</Text>
-      
-      {/* <TouchableOpacity
-            style={[styles.sectionTitle2, { zIndex: 1 }]}
-            onPress={() => {
-            console.log('See all');
-            navigation.navigate('Fiturkursus');
-            }}>
-            <Text styles={styles.sectionTitle2}>see all</Text>
-      </TouchableOpacity> */}
 
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
       <View style={styles.courseContainer}>
@@ -156,7 +170,7 @@ const HomeScreen = () => {
           <Text style={styles.courseTitle}>Scicos</Text>
           <Text style={[styles.courseTitle_, { fontWeight: 'bold', fontStyle: 'italic', color: '#234873',}]}>Biology</Text>
           <Text style={styles.courseUseclass}>SMP Class 7</Text>
-          <Text style={styles.coursePrice}>30.000 - 85.000</Text>
+          <Text style={styles.coursePrice}>30.000</Text>
 
           <View style={styles.buttonsContainer}>
           {/* Button for method */}
@@ -189,7 +203,7 @@ const HomeScreen = () => {
           <Text style={styles.courseTitle}>Scicos</Text>
           <Text style={[styles.courseTitle1_, { fontWeight: 'bold', fontStyle: 'italic', color: '#234873', left: 25 }]}>Mathematics</Text>
           <Text style={styles.courseUseclass1}>SMP Class 9</Text>
-          <Text style={styles.coursePrice1}>40.000 - 90.000</Text>
+          <Text style={styles.coursePrice1}>40.000</Text>
 
           <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.methodButton1}>
@@ -412,13 +426,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#234873',
     top: 32,
-    left: 48,
+    left: 20,
   },
   coursePrice: {
     fontSize: 14,
     color: '#234873',
     top: 32,
-    left: 48,
+    left: 20,
   },
   buttonText2: {
     fontSize: 15,
