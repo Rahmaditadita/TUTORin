@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import ikon
-import { auth } from '../service/firebaseconfig'; // Import Firebase Auth
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
-import { db } from '../service/firebaseconfig';
+import { db, firestore, auth} from '../service/firebaseconfig';
 import { collection, addDoc, getDocs, doc } from 'firebase/firestore';
-import { firestore } from '../service/firebaseconfig'; // Menggunakan firestore yang diekspor
 
 
 const Login = () => {
@@ -21,7 +19,7 @@ const Login = () => {
 
   const fetchUsers = async () => {
   try {
-    const querySnapshot = await getDocs(collection(firestore, 'users'));
+    const querySnapshot = await getDocs(collection(firestore, 'Users'));
     querySnapshot.forEach((doc) => {
       console.log(`${doc.id} => ${JSON.stringify(doc.data())}`);
     });
@@ -31,6 +29,7 @@ const Login = () => {
 };
 
   const [userDetails, setUserDetails] = useState({
+    uidpelajar: '',
     email: '',
     password: '',
     firstName: '',
@@ -65,26 +64,26 @@ const Login = () => {
   
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = userCredential.user.uid;
       console.log('User registered:', userCredential.user);
   
-      // Tentukan role pengguna (misalnya pelajar atau tutor)
-      const role = 'pelajar'; // Ganti dengan 'tutor' jika role-nya tutor
+      // Tentukan role pengguna
+      const role = 'Pelajar'; // Role default sebagai pelajar
   
       // Simpan detail pengguna di Firestore
-      await saveUserDetails({
-        email,
-        firstName,
-        lastName,
-        school,
-        address,
-        class: userClass,
-      }, role); // Kirim role ke fungsi saveUserDetails
+      const userDetailsWithUID = {
+        ...userDetails,
+        uid, // Tambahkan UID di sini
+      };
+  
+      await saveUserDetails(userDetailsWithUID, role);
   
       Alert.alert('Success', 'Account created successfully! Please log in.');
-      navigation.navigate('gender', { username });
+      navigation.navigate('gender', { username: userCredential.user.email }); // Navigasi dengan username sebagai email
   
       // Reset form
       setUserDetails({
+        uid: '',
         email: '',
         password: '',
         firstName: '',
@@ -93,38 +92,55 @@ const Login = () => {
         address: '',
         class: '',
       });
-      setIsOnRegisterScreen(false); // Switch to login screen
+      setIsOnRegisterScreen(false); // Pindah ke layar login
     } catch (error) {
       console.error('Error during registration:', error);
       Alert.alert('Error', 'Registration failed. Please try again.');
     }
-  };  
-
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill in both fields.');
-      return;
-    }
-
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('User  logged in:', userCredential.user);
-      setUsername(userCredential.user.displayName || userCredential.user.email); // Set username to user's email
-      navigation.navigate('home', { username });
-    } catch (error) {
-      console.error('Error during login:', error);
-      Alert.alert('Error', 'Invalid credentials. Please check your email and password.');
-    }
   };
 
-  const handleLogout = async () => {
+  const saveUserDetails = async (userDetails, role) => {
     try {
-      await signOut(auth);
-      console.log('User  signed out');
+      console.log('Saving user details:', userDetails); // Debug log untuk melihat userDetails
+  
+      const user = auth.currentUser; // Mendapatkan user yang sedang login
+      if (user) {
+        const userRef = doc(firestore, 'Users', 'Pelajar'); // Gunakan user.uid sebagai ID dokumen
+        const roleRef = collection(userRef, role); // Menentukan subkoleksi berdasarkan role
+  
+        console.log('Saving data to Firestore:', userDetails); // Debug log sebelum menyimpan
+  
+        await addDoc(roleRef, userDetails); 
+        console.log(`${role} data saved successfully in Firestore!`);
+      } else {
+        console.error('User is not logged in');
+      }
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('Error saving user details:', error.message);
+      Alert.alert('Error', 'Failed to save user details in Firestore.');
     }
   };
+  
+  
+
+      const handleLogin = async () => {
+        if (!email || !password) {
+          Alert.alert('Error', 'Please fill in both fields.');
+          return;
+        }
+    
+        try {
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          console.log('User  logged in:', userCredential.user);
+          setUsername(userCredential.user.displayName || userCredential.user.email); // Set username to user's email
+          navigation.navigate('home', { username });
+        } catch (error) {
+          console.error('Error during login:', error);
+          Alert.alert('Error', 'Invalid credentials. Please check your email and password.');
+        }
+      };
+  
+
 
   const handleClass = (classId) => {
     setUserDetails({ ...userDetails, class: classId });

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, FlatList, Clipboard } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { getFirestore, doc, collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
 import { db } from '../service/firebaseconfig';
+import { useNavigation } from '@react-navigation/native';
 
 const PayScreen = ({ onPaymentSuccess }) => {
   const [selectedBank, setSelectedBank] = useState(null);
@@ -13,6 +14,7 @@ const PayScreen = ({ onPaymentSuccess }) => {
   const [showMethodDropdown, setShowMethodDropdown] = useState(false);
   const [selectedSessionTime, setSelectedSessionTime] = useState('');
   const [selectedLearningMethod, setSelectedLearningMethod] = useState('');
+  
 
   const banks = [
     { id: 'bca', name: 'BCA' },
@@ -47,8 +49,14 @@ const PayScreen = ({ onPaymentSuccess }) => {
     setShowMethodDropdown(false);
   };
 
-  const handlePayment = async () => {
+  const handlePayment = async (selectedCourseId) => {
     const db = getFirestore();
+
+    const selectedCourse = courses.find(course => course.id === selectedCourseId);
+    if (!selectedCourse) {
+      console.error('Course tidak ditemukan');
+      return;
+    }
 
     const paymentsRef = collection(
       db,
@@ -56,7 +64,7 @@ const PayScreen = ({ onPaymentSuccess }) => {
       'loginpelajar',
       'pelajar',
       'pengguna1',
-      'Payments'
+      'Payments',
     );
   
     const paymentDetails = {
@@ -64,15 +72,17 @@ const PayScreen = ({ onPaymentSuccess }) => {
       tutorId: 'Tutor123', // ID tutor
       courseId: 'Biology', // ID kursus
       amount: 100000, // Jumlah pembayaran
-      status: 'pending', // Status pembayaran
+      status: 'complete', // Status pembayaran
       timestamp: serverTimestamp(),
     };
   
     try {
-      await addDoc(paymentsRef, paymentDetails);
-      console.log('Payment saved successfully');
+      await addDoc(paymentsRef, paymentDetails); // Simpan data ke Firestore
+      alert('Pembayaran berhasil!'); // Tampilkan alert sukses
+      navigate('/listpelajar'); // Redirect ke halaman 'listpelajar'
     } catch (error) {
-      console.error('Error saving payment:', error);
+      console.error('Error saving payment:', error); // Log error jika terjadi
+      alert('Terjadi kesalahan saat menyimpan pembayaran. Coba lagi.'); // Tampilkan alert error
     }
   };
 

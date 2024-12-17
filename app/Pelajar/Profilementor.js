@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Text, Image, ScrollView, TouchableOpacity, FlatList, TextInput, Alert} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';  // Ensure this is correct
-import Ionicons from 'react-native-vector-icons/Ionicons'; // For Ionicons
+import { SafeAreaView, View, Text, Image, ScrollView, TouchableOpacity, FlatList, TextInput, Alert } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { doc, getDoc, setDoc, collection, addDoc, getDocs } from 'firebase/firestore';
-import { auth, firestore } from '../service/firebaseconfig';
+import { firestore } from '../service/firebaseconfig'; // Ensure this path is correct
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -15,7 +15,7 @@ const ProfilementorScreen = () => {
   const [totalReviews, setTotalReviews] = useState(100);
   const [commentsList, setCommentsList] = useState([]);
   const [userData, setUserData] = useState(null);
-  const mentorId = 'mentor_id';
+  const tutor = 'Tutor';
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -45,38 +45,26 @@ const ProfilementorScreen = () => {
       }
     };
 
-    const fetchReviewsFromFirebase = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(firestore, 'reviews'));
-        const reviews = [];
-        querySnapshot.forEach((doc) => {
-          reviews.push({ ...doc.data(), id: doc.id });
-        });
-        setCommentsList(reviews);
-      } catch (e) {
-        console.error('Error fetching reviews: ', e);
-      }
-    };
-
     const fetchMentorData = async () => {
       try {
-        const mentorDocRef = doc(firestore, 'mentors', mentorId);
+        const mentorDocRef = doc(firestore, 'Users', 'loginpelajar', 'tutor', 'deskripsi', 'Deskripsi', 'desripsi1');
         const mentorDoc = await getDoc(mentorDocRef);
         if (mentorDoc.exists()) {
           const mentorData = mentorDoc.data();
-          setAverageRating(mentorData.ratings);
-          setTotalReviews(mentorData.totalReviews);
+          setAverageRating(mentorData.ratings || 0);
+          setTotalReviews(mentorData.totalReviews || 0);
+          setUserData(mentorData);
         }
       } catch (e) {
         console.error('Error fetching mentor data: ', e);
       }
     };
-  
-    fetchReviews();
+
     fetchUserData();
-    fetchReviewsFromFirebase();
+    fetchReviews();
     fetchMentorData();
   }, []);
+
 
   const saveReviewToFirebase = async () => {
     try {
@@ -117,7 +105,7 @@ const ProfilementorScreen = () => {
   };
 
   const courses = [
-    { title: 'Biology Starter Pack', price: '20.000/meet', rating: '4.9 (100 Reviews)',
+    { title: 'Biology Starter Pack', price: '20000', rating: '4.9 (100 Reviews)',
       description: 'Bebas atur jadwal, bebas pilih sesi',
       description: 'Mulai perjalanan belajarmu dengan paket coba-coba yang seru di TUTORin!',
       details: [
@@ -126,10 +114,10 @@ const ProfilementorScreen = () => {
         'Bebas atur jadwal',
         'Bebas atur sesi'
       ]},
-    { title: 'Biology Mastery Pack',  price: '75.000/week', rating: '4.9 (100 Reviews)',
+    { title: 'Biology Mastery Pack',  price: '75000', rating: '4.9 (100 Reviews)',
       description: 'Coba paket ini dan temukan cara mudah belajar biologi!',
       details: [
-        '1 sesi privat',
+        '3 sesi privat',
         '120 menit per sesi',
         'Bebas atur jadwal',
         'Bebas atur sesi'
@@ -175,7 +163,7 @@ const ProfilementorScreen = () => {
 
   const navigation = useNavigation();
   const handleBack = () => {
-    navigation.goBack(); // Navigate back to the previous screen
+    navigation.goBack();
   };
   
 
@@ -191,33 +179,29 @@ const ProfilementorScreen = () => {
   };
 
   const reviews = commentsList.map((item, index) => ({
-    id: index.toString(), // Use index as a unique key
-    author: 'User  ' + (index + 1), // Placeholder for author name
+    id: index.toString(),
+    author: 'User  ' + (index + 1),
     rating: item.rating,
     text: item.comment,
   }));
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F6EFBD' }}>
-      <ScrollView 
-      contentContainerStyle={{ paddingBottom: 20 }} // Tambahkan padding bawah
-      style={{ flex: 1 }} // Pastikan ScrollView memiliki flex: 1
-      >
-
-      {/* Header with Back Arrow */}
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={handleBack}>
-          <Ionicons name="arrow-back" size={30} color="#234873" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Mentor Profile</Text>
-      </View>
-        <Image
-          source={require('../assets/aini.png')} style={styles.profileImage}/>
-          <Text style={styles.mentorName}>Miss Sekar</Text>
+      <ScrollView contentContainerStyle={{ paddingBottom: 20 }} style={{ flex: 1 }}>
+        {/* Header with Back Arrow */}
+        <View style={styles.headerContainer}>
+          <TouchableOpacity onPress={handleBack}>
+            <Ionicons name="arrow-back" size={30} color="#234873" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Mentor Profile</Text>
+        </View>
+        <Image source={require('../assets/aini.png')} style={styles.profileImage} />
+        <Text style={styles.mentorName}>Miss Sekar</Text>
+  
         {/* Stats */}
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>5</Text>
+            <Text style={styles.statNumber}>2</Text>
             <Text style={styles.statLabel}>Courses</Text>
           </View>
           <View style={styles.statItem}>
@@ -229,7 +213,7 @@ const ProfilementorScreen = () => {
             <Text style={styles.statLabel}>Reviews</Text>
           </View>
         </View>
-
+  
         {/* Tab Navigation */}
         <View style={styles.tabContainer}>
           {['About', 'Course', 'Review'].map(tab => (
@@ -238,67 +222,68 @@ const ProfilementorScreen = () => {
               style={[styles.tabItem, activeTab === tab && styles.activeTab]}
               onPress={() => setActiveTab(tab)}
             >
-              <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>{tab}</Text>
+              <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
+                {tab}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
-
-        {/* Tab Content */}
-        
-        {activeTab === 'About' && (
+  
+        {/* About Tab Content */}
+        {activeTab === 'About' && userData && (
           <View style={styles.tabContent}>
             <Text style={[styles.tabTitle, { textAlign: 'center' }]}>About Me</Text>
             <Text style={[styles.tabDescription, { textAlign: 'center' }]}>
-              I am a passionate mentor with over 5 years of experience in the field. I love sharing knowledge and helping others achieve their goals.
+              {userData.about || 'No information available.'}
             </Text>
           </View>
         )}
-{activeTab === 'Course' && (
-  <View style={styles.tabContent}>
-    <Text style={styles.tabTitle}>Courses Offered</Text>
-    <FlatList
-      data={courses}
-      renderItem={({ item }) => (
-        <View style={styles.courseItem}>
-          <Text style={styles.courseTitle}>{item.title}</Text>
-          <Text style={styles.courseDescription}>{item.description}</Text>
-          <Text style={styles.coursePrice}>{item.price}</Text>
-          <View style={styles.ratingContainer}>
-            <Text style={styles.courseRating}>{item.rating}</Text>
+  
+        {/* Course Tab Content */}
+        {activeTab === 'Course' && (
+          <View style={styles.tabContent}>
+            <Text style={styles.tabTitle}>Courses Offered</Text>
+            <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+              {courses.map((item, index) => (
+                <View key={index} style={styles.courseItem}>
+                  <Text style={styles.courseTitle}>{item.title}</Text>
+                  <Text style={styles.courseDescription}>{item.description}</Text>
+                  <Text style={styles.coursePrice}>{item.price}</Text>
+                  <View style={styles.ratingContainer}>
+                    <Text style={styles.courseRating}>{item.rating}</Text>
+                  </View>
+                  <View style={styles.courseDetailsContainer}>
+                    {item.details.map((detail, index) => (
+                      <View key={index} style={styles.detailItem}>
+                        <Icon name="check" size={20} color="green" />
+                        <Text style={styles.courseDetail}>{detail}</Text>
+                      </View>
+                    ))}
+                  </View>
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity onPress={() => handleBuy(item.title)}>
+                      <Text style={styles.buyButton}>Buy</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
           </View>
-          <View style={styles.courseDetailsContainer}>
-            {item.details.map((detail, index) => (
-              <View key={index} style={styles.detailItem}>
-                <Icon name="check" size={20} color="green" />
-                <Text style={styles.courseDetail}>{detail}</Text>
-              </View>
-            ))}
-          </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={() => handleBuy(item.title)}>
-              <Text style={styles.buyButton}>Buy</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-      keyExtractor={(item, index) => index.toString()}
-      nestedScrollEnabled={true}
-    />
-  </View>
-)}
-
+        )}
+  
+        {/* Review Tab Content */}
         {activeTab === 'Review' && (
           <View style={styles.tabContent}>
             <Text style={styles.tabTitle}>Reviews</Text>
             <View style={styles.reviewInputContainer}>
               <Text style={styles.inputLabel}>Rate this mentor:</Text>
-              <View style = {styles.startWrapper}>
-              <StarRating
-                rating={rating}
-                onRatingPress={handleRating}
-                starColor="#FFD700"
-                starSize={25}
-              />
+              <View style={styles.startWrapper}>
+                <StarRating
+                  rating={rating}
+                  onRatingPress={handleRating}
+                  starColor="#FFD700"
+                  starSize={25}
+                />
               </View>
               <TextInput
                 style={styles.reviewInput}
@@ -311,28 +296,25 @@ const ProfilementorScreen = () => {
                 <Text style={styles.submitButton}>Submit</Text>
               </TouchableOpacity>
             </View>
-
+  
             {/* Reviews List */}
-            <FlatList
-              data={reviews}
-              renderItem={({ item }) => (
-                <View style={styles.reviewItem}>
+            <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+              {reviews.map((item) => (
+                <View key={item.id} style={styles.reviewItem}>
                   <Text style={styles.reviewAuthor}>{item.author}</Text>
                   <Text style={styles.reviewRating}>Rating: {item.rating}</Text>
                   <Text style={styles.reviewText}>{item.text}</Text>
                   <StarRating rating={item.rating} starColor="#FFD700" />
                 </View>
-              )}
-              keyExtractor={(item) => item.id}
-              contentContainerStyle={{ paddingBottom: 20 }} // Tambahkan padding bawah
-              scrollEnabled={true}
-            />
+              ))}
+            </ScrollView>
           </View>
         )}
       </ScrollView>
     </SafeAreaView>
   );
-};
+}
+  
 
 const styles = StyleSheet.create({
   container: {
@@ -437,7 +419,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     top: 120,
-    left: 215,
+    left: 260,
   },
   courseTitle: {
     fontSize: 18,

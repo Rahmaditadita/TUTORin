@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import ikon
-import { auth } from '../service/firebaseconfig'; // Import Firebase Auth
+import { db, firestore, auth } from '../service/firebaseconfig'; // Import Firebase Auth
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
-import { db } from '../service/firebaseconfig';
 import { collection, addDoc, getDocs, doc } from 'firebase/firestore';
-import { firestore } from '../service/firebaseconfig'; // Menggunakan firestore yang diekspor
 
 const LoginT = () => {
   const [isOnRegisterScreen, setIsOnRegisterScreen] = useState(false);
@@ -19,7 +17,7 @@ const LoginT = () => {
 
   const fetchUsers = async () => {
     try {
-      const querySnapshot = await getDocs(collection(firestore, 'users'));
+      const querySnapshot = await getDocs(collection(firestore, 'Users'));
       querySnapshot.forEach((doc) => {
         console.log(`${doc.id} => ${JSON.stringify(doc.data())}`);
       });
@@ -29,6 +27,7 @@ const LoginT = () => {
   };
 
   const [userDetails, setUserDetails] = useState({
+    uidTutor: '',
     email: '',
     password: '',
     firstName: '',
@@ -40,7 +39,8 @@ const LoginT = () => {
     // Memantau status autentikasi pengguna
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUsername(user.email); // Atau gunakan user.displayName jika Anda menyimpannya
+        setUsername(user.email);
+        fetchUsers(); // Atau gunakan user.displayName jika Anda menyimpannya
       } else {
         setUsername('');
       }
@@ -59,19 +59,20 @@ const LoginT = () => {
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = userCredential.user.uid;
       console.log('User  registered:', userCredential.user);
       const role = 'tutor';
-      await saveUserDetails({
-        email,
-        firstName,
-        lastName,
-        address,
-        password,
-      }, role); 
+      const userDetailsWithUID = {
+        ...userDetails,
+        uid, // Tambahkan UID di sini
+      };
+  
+      await saveUserDetails(userDetailsWithUID, role);
       navigation.navigate('gendermen', { username });
       Alert.alert('Success', 'Account created successfully! Please log in.');
 
       setUserDetails({
+        uidTutor: '',
         email: '',
         password: '',
         firstName: '',
@@ -88,19 +89,22 @@ const LoginT = () => {
 
     const saveUserDetails = async (userDetails, role) => {
       try {
-        // Tentukan koleksi berdasarkan role (pelajar atau tutor)
-        const collectionPath = role === 'pelajar' 
-          ? 'Users/loginpelajar/pelajar' 
-          : 'Users/loginpelajar/tutor';
-        
-        const userRef = collection(firestore, collectionPath);
-        await addDoc(userRef, userDetails); // Menyimpan data ke Firestore
-        console.log(`${role} data saved successfully in Firestore!`);
-      } catch (error) {
-        console.error('Error saving user details:', error.message);
-        Alert.alert('Error', 'Failed to save user details in Firestore.');
-      }
-    };
+        console.log('Saving user details:', userDetails); // Debug log untuk melihat userDetails
+        const user = auth.currentUser; // Mendapatkan user yang sedang login
+          if (user) {
+            const userRef = doc(firestore, 'Users','Tutor'); // Gunakan user.uid sebagai ID dokumen
+            const roleRef = collection(userRef, 'role'); // Menentukan subkoleksi berdasarkan role
+              console.log('Saving data to Firestore:', userDetails); // Debug log sebelum menyimpan
+              await addDoc(roleRef, userDetails); 
+              console.log(`${role} data saved successfully in Firestore!`);
+            } else {
+              console.error('User is not logged in');
+            }
+          } catch (error) {
+            console.error('Error saving user details:', error.message);
+            Alert.alert('Error', 'Failed to save user details in Firestore.');
+          }
+        };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -119,14 +123,6 @@ const LoginT = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      console.log('User  signed out');
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
 
 
   return (

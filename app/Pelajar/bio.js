@@ -49,7 +49,7 @@ const BioScreen = () => {
       <View style={styles.categoryList}>
         <KategoriKursus
           imageSource={require('../assets/aini.png')}
-          name="Miss Aini"
+          name="Miss Sekar"
           rating="4.9"
           reviews="100"
           onPress={() => {
