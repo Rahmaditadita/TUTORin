@@ -3,7 +3,7 @@ import { SafeAreaView, View, Text, Image, ScrollView, TouchableOpacity, FlatList
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { doc, getDoc, setDoc, collection, addDoc, getDocs } from 'firebase/firestore';
-import { firestore } from '../service/firebaseconfig'; // Ensure this path is correct
+import { db, firestore } from '../service/firebaseconfig'; // Ensure this path is correct
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -15,95 +15,137 @@ const ProfilementorScreen = () => {
   const [totalReviews, setTotalReviews] = useState(100);
   const [commentsList, setCommentsList] = useState([]);
   const [userData, setUserData] = useState(null);
-  const tutor = 'Tutor';
+  const [aboutDescription, setAboutDescription] = useState('');
+  const [commentsTotal, setCommentsTotal] = useState(0);
+  const navigation = useNavigation();
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const userId = 'user_id'; // Ganti dengan ID user yang sedang login
-      try {
-        const userDoc = await getDoc(doc(firestore, 'users', userId));
-        if (userDoc.exists()) {
-          setUserData(userDoc.data());
-        } else {
-          console.log('No such document!');
+    const fetchData = async () => {
+      const auth = getAuth();
+      const tutorId = auth.currentUser  ? auth.currentUser .uid : null;
+
+      if (tutorId) {
+        try {
+          // Ambil data pengguna
+          const userDoc = await getDoc(doc(firestore, 'Users', tutorId));
+          if (userDoc.exists()) {
+            setUserData(userDoc.data());
+          } else {
+            console.log('No such document!');
+          }
+
+          // Ambil deskripsi
+          const tutorDocRef = doc(firestore, 'Users', 'Tutor', 'Courses', 'deskripsi');
+          const tutorDoc = await getDoc(tutorDocRef);
+          if (tutorDoc.exists()) {
+            setAboutDescription(tutorDoc.data().description || 'No description available.');
+          } else {
+            console.log('No tutor document found!');
+          }
+
+          // Ambil ulasan
+          const reviewsRef = collection(firestore, 'Reviews');
+          const reviewsSnapshot = await getDocs(reviewsRef);
+          const fetchedReviews = reviewsSnapshot.docs.map(doc => doc.data());
+          setCommentsList(fetchedReviews);
+          setTotalReviews(fetchedReviews.length); // Update totalReviews
+        } catch (error) {
+          console.error('Error fetching data:', error);
         }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+      } else {
+        console.log('No user is currently logged in.');
       }
     };
 
-    const fetchReviews = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(firestore, 'reviews'));
-        const reviews = [];
-        querySnapshot.forEach((doc) => {
-          reviews.push({ ...doc.data(), id: doc.id });
-        });
-        setCommentsList(reviews);
-      } catch (e) {
-        console.error('Error fetching reviews:', e);
-      }
-    };
-
-    const fetchMentorData = async () => {
-      try {
-        const mentorDocRef = doc(firestore, 'Users', 'loginpelajar', 'tutor', 'deskripsi', 'Deskripsi', 'desripsi1');
-        const mentorDoc = await getDoc(mentorDocRef);
-        if (mentorDoc.exists()) {
-          const mentorData = mentorDoc.data();
-          setAverageRating(mentorData.ratings || 0);
-          setTotalReviews(mentorData.totalReviews || 0);
-          setUserData(mentorData);
-        }
-      } catch (e) {
-        console.error('Error fetching mentor data: ', e);
-      }
-    };
-
-    fetchUserData();
-    fetchReviews();
-    fetchMentorData();
+    fetchData();
   }, []);
 
+    const fetchAboutDescriptionAndReviews = async () => {
+      try {
+        const tutorDocRef = doc(firestore, 'Users', 'Tutor', 'Courses', 'deskripsi');
+        const tutorDoc = await getDoc(tutorDocRef);
 
-  const saveReviewToFirebase = async () => {
-    try {
-      const docRef = await addDoc(collection(firestore, 'reviews'), {
-        userId: 'user_id',  // Ganti dengan user yang sedang login
-        rating: rating,
-        comment: comment,
-        timestamp: new Date(),
-        mentorId: mentorId, // Menyimpan ID mentor yang di-review
-      });
-      console.log('Review saved with ID: ', docRef.id);
+        if (tutorDoc.exists()) {
+          setAboutDescription(tutorDoc.data().description || 'No description available.');
+        } else {
+          console.log('No tutor document found!');
+        }
+
+        const reviewsRef = collection(firestore, 'Reviews');
+        const reviewsSnapshot = await getDocs(reviewsRef);
+        const fetchedReviews = reviewsSnapshot.docs.map(doc => doc.data());
+        setCommentsList(fetchedReviews);
+      } catch (e) {
+        console.error('Error fetching description and reviews:', e);
+      }
+    };
+    fetchAboutDescriptionAndReviews();
+    const addComment = async (newComment) => {
+      const commentsCollection = collection(db, 'comments');
+      await addDoc(commentsCollection, newComment);
       
-      const mentorDocRef = doc(firestore, 'mentors', mentorId);
-      const mentorDoc = await getDoc(mentorDocRef);
-      if (mentorDoc.exists()) {
-        const mentorData = mentorDoc.data();
-        const newTotalReviews = mentorData.totalReviews + 1;
-        const newAverageRating = (mentorData.ratings * mentorData.totalReviews + rating) / newTotalReviews;
-  
-        // Update rating dan jumlah review pada mentor
-        await setDoc(mentorDocRef, {
-          ratings: newAverageRating,
-          totalReviews: newTotalReviews,
+      // Fetch comments again to update the state
+      fetchComments();
+    };
+
+    const saveReviewToFirebase = async () => {
+      try {
+        const reviewsRef = collection(firestore, 'Reviews');
+        const docRef = await addDoc(reviewsRef, {
+          tutorId: 'TutorId', // Ganti dengan ID tutor yang sebenarnya
+          rating: rating,
+          comment: comment,
+          timestamp: new Date(),
         });
   
-        // Update state
-        setTotalReviews(newTotalReviews);
-        setAverageRating(newAverageRating);
+        const newReview = {
+          id: docRef.id,
+          rating: rating,
+          comment: comment,
+        };
+        setCommentsList((prevComments) => [...prevComments, newReview]);
+        setTotalReviews((prevTotal) => prevTotal + 1); // Update totalReviews
+  
         Alert.alert('Review submitted!');
-        setRating(0);
-        setComment('');
-      } else {
-        console.log('Mentor not found!');
+      } catch (error) {
+        console.error('Error saving review:', error);
       }
-    } catch (e) {
-      console.error('Error adding review: ', e);
+    };
+
+    const handleSubmitReview = () => {
+      if (!comment.trim()) {
+        Alert.alert('Comment cannot be empty.');
+        return;
+      }
+  
+      if (rating > 0) {
+        saveReviewToFirebase();
+        setComment(''); // Reset the comment input after submission
+        setRating(0); // Reset the rating after submission
+      } else {
+        Alert.alert('Please select a rating before submitting.');
+      }
+    };
+
+  const StarRating = ({ rating, onRatingPress, starColor = '#FFD700', starSize = 20 }) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <TouchableOpacity key={i} onPress={() => onRatingPress(i)}>
+          <Ionicons
+            name={i <= rating ? 'star' : 'star-outline'}
+            size={starSize}
+            color={starColor}
+          />
+        </TouchableOpacity>
+      );
     }
+    return <View style={{ flexDirection: 'row' }}>{stars}</View>;
   };
 
+  const handleBack = () => {
+    navigation.goBack();
+  };
   const courses = [
     { title: 'Biology Starter Pack', price: '20000', rating: '4.9 (100 Reviews)',
       description: 'Bebas atur jadwal, bebas pilih sesi',
@@ -126,44 +168,6 @@ const ProfilementorScreen = () => {
 
   const handleRating = (selectedRating) => {
     setRating(selectedRating);
-  };
-
-  const handleSubmitReview = () => {
-    if (!comment.trim()) {
-      Alert.alert('Comment cannot be empty.');
-      return;
-    }
-
-    if (rating > 0) {
-      saveReviewToFirebase();  // Simpan review ke Firebase
-    } else {
-      Alert.alert('Please select a rating before submitting.');
-    }
-  };
-
-  const timeAgo = (timestamp) => {
-    return moment(timestamp).fromNow();  // Menggunakan moment.js untuk menampilkan waktu relatif
-  };
-
-  const StarRating = ({ rating, onRatingPress, starColor = '#FFD700', starSize = 20 }) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <TouchableOpacity key={i} onPress={() => onRatingPress(i)}>
-          <Ionicons
-            name={i <= rating ? 'star' : 'star-outline'}
-            size={starSize}
-            color={starColor}
-          />
-        </TouchableOpacity>
-      );
-    }
-    return <View style={{ flexDirection: 'row' }}>{stars}</View>;
-  };
-
-  const navigation = useNavigation();
-  const handleBack = () => {
-    navigation.goBack();
   };
   
 
@@ -229,15 +233,15 @@ const ProfilementorScreen = () => {
           ))}
         </View>
   
-        {/* About Tab Content */}
-        {activeTab === 'About' && userData && (
+        {activeTab === 'About' && (
           <View style={styles.tabContent}>
             <Text style={[styles.tabTitle, { textAlign: 'center' }]}>About Me</Text>
             <Text style={[styles.tabDescription, { textAlign: 'center' }]}>
-              {userData.about || 'No information available.'}
+              {aboutDescription || 'No information available.'}
             </Text>
           </View>
         )}
+
   
         {/* Course Tab Content */}
         {activeTab === 'Course' && (
@@ -299,15 +303,16 @@ const ProfilementorScreen = () => {
   
             {/* Reviews List */}
             <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-              {reviews.map((item) => (
-                <View key={item.id} style={styles.reviewItem}>
-                  <Text style={styles.reviewAuthor}>{item.author}</Text>
-                  <Text style={styles.reviewRating}>Rating: {item.rating}</Text>
-                  <Text style={styles.reviewText}>{item.text}</Text>
-                  <StarRating rating={item.rating} starColor="#FFD700" />
-                </View>
-              ))}
-            </ScrollView>
+  {commentsList.map((item, index) => (
+    <View key={index} style={styles.reviewItem}>
+      <Text style={styles.reviewAuthor}>User {index + 1}</Text>
+      <Text style={styles.reviewRating}>Rating: {item.rating}</Text>
+      <Text style={styles.reviewText}>{item.comment}</Text>
+      <StarRating rating={item.rating} starColor="#FFD700" />
+    </View>
+  ))}
+</ScrollView>
+
           </View>
         )}
       </ScrollView>

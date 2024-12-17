@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, Button, FlatList, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Card } from 'react-native-elements';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { getDoc, setDoc, doc } from 'firebase/firestore';
 import { firestore, auth } from '../service/firebaseconfig';
@@ -43,6 +43,41 @@ const HomePage = ({ onLogout }) => {
     saveMentorDescription();
   };
 
+  const handleCoursePurchase = (paymentAmount) => {
+    processPayment(paymentAmount);  // Misalnya paymentAmount = 100000
+  };
+  
+
+  const processPayment = async (paymentAmount) => {
+    try {
+      // Mengambil dokumen tutor dari Firestore
+      const tutorDocRef = doc(firestore, 'Users', 'Tutor', 'Payments', 'userpelajar'); // Pastikan ID dan path koleksi sudah benar
+      const tutorDoc = await getDoc(tutorDocRef);
+  
+      if (tutorDoc.exists()) {
+        // Ambil data profil tutor
+        const tutorData = tutorDoc.data();
+        const newMoneyAmount = tutorData.money + paymentAmount;
+  
+        // Update 'money' di dokumen tutor
+        await setDoc(tutorDocRef, { money: newMoneyAmount }, { merge: true });
+  
+        // Update state profil dengan uang terbaru
+        setProfile((prevProfile) => ({
+          ...prevProfile,  // Menyalin data profil sebelumnya
+          money: newMoneyAmount,  // Menambahkan uang baru ke state profil
+        }));
+  
+        console.log('Payment processed successfully');
+      } else {
+        console.log('Tutor document not found');
+      }
+    } catch (error) {
+      console.error('Error processing payment:', error);
+    }
+  };
+  
+  
   // Ambil deskripsi mentor dari Firestore
   const fetchMentorDescription = async () => {
     const mentorDocRef = doc(firestore, 'Users', 'Tutor', 'Courses', 'deskripsi'); // Pastikan ID yang benar digunakan
@@ -107,7 +142,7 @@ useEffect(() => {
             try {
               await signOut(auth); // Logout dari Firebase
               console.log('User signed out');
-              navigation.navigate('loginpelajar'); // Navigasi ke layar login
+              navigation.navigate('logintutor'); // Navigasi ke layar login
             } catch (error) {
               console.error('Error signing out:', error);
               Alert.alert('Error', 'Failed to log out. Please try again.');
@@ -132,9 +167,11 @@ useEffect(() => {
             <TouchableOpacity style={styles.button}>
               <Text style={styles.buttonText}>Rating: {profile.rating}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>Money: ${profile.money}</Text>
-            </TouchableOpacity>
+            // Menambahkan tombol pembelian kursus atau transaksi pembayaran
+          <TouchableOpacity style={styles.button} onPress={() => handleCoursePurchase(100000)}>
+             <Text style={styles.buttonText}>Money: ${profile.money}</Text>
+          </TouchableOpacity>
+
           </View>
 
           <View style={styles.descriptionContainer}>
@@ -283,8 +320,8 @@ const styles = StyleSheet.create({
   },
   descriptionContainer: { marginTop: 10, alignItems: 'center', paddingHorizontal: 10 },
   descriptionRow: { flexDirection: 'row', alignItems: 'center' },
-  description: { fontSize: 16, color: 'white', marginRight: -54, marginTop: -140},
-  editIcon: { marginLeft: 70, color: '#FFF7C0',marginTop: -80,},
+  description: { fontSize: 10, color: 'white', marginRight: -80, marginTop: -140},
+  editIcon: { marginLeft: 137, color: '#FFF7C0',marginTop: -80,},
   editContainer: { alignItems: 'center', width: '100%', },
   textInput: { width: '90%', borderColor: 'gray', borderWidth: 1, borderRadius: 5, padding: 10, backgroundColor: 'white', marginBottom: 10},
 });

@@ -5,7 +5,6 @@ import {
   View,
   Text,
   StyleSheet,
-  ImageBackground,
   TouchableOpacity,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -14,8 +13,16 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 const initialCourses = [
   {
     category: 'Scisos',
-    title: 'Biology',
-    image: require('../assets/bio.png'),
+    title: 'Biology Mastery Pack',
+    price: '75000',
+    rating: '4.9 (100 Reviews)',
+    description: 'Coba paket ini dan temukan cara mudah belajar biologi!',
+    details: [
+      '3 sesi privat',
+      '120 menit per sesi',
+      'Bebas atur jadwal',
+      'Bebas atur sesi'
+    ],
   },
 ];
 
@@ -34,7 +41,7 @@ const Tutorkursus = ({ navigation, route }) => {
   };
 
   const handleCoursePress = (course) => {
-    if (course.title === 'Biology') {
+    if (course.title === 'Biology Mastery Pack') {
       navigation.navigate('Videotutor'); // Navigasi ke screen videokuistutor
     }
     // Anda bisa menambahkan navigasi untuk kursus lain di sini
@@ -58,18 +65,17 @@ const Tutorkursus = ({ navigation, route }) => {
             style={styles.card}
             onPress={() => handleCoursePress(course)}
           >
-            <ImageBackground
-              source={course.image}
-              style={styles.image}
-              imageStyle={styles.imageStyle}
-            >
-              <View style={styles.textContainer}>
-                <View style={styles.categoryContainer}>
-                  <Text style={styles.category}>{course.category}</Text>
-                </View>
-                <Text style={styles.title}>{course.title}</Text>
+            <View style={styles.textContainer}>
+              <View style={styles.categoryContainer}>
+                <Text style={styles.category}>{course.category}</Text>
               </View>
-            </ImageBackground>
+              <Text style={styles.courseTitle}>{course.title}</Text>
+              <Text style={styles.courseDescription}>{course.description}</Text>
+              <Text style={styles.coursePrice}>{course.price}</Text>
+              <View style={styles.ratingContainer}>
+                <Text style={styles.courseRating}>{course.rating}</Text>
+              </View>
+            </View>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -85,72 +91,83 @@ const Tutorkursus = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FBF3BC',
+    backgroundColor: '#F6EFBD',
   },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 25,
-    backgroundColor: '#FBF3BC',
-    elevation: 3, // Shadow for header
+    padding: 15,
+    backgroundColor: '#F6EFBD',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
   },
   header: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#234873',
     marginLeft: 10,
-    marginTop: 1,
   },
   scrollContent: {
-    paddingTop: 10, // Adds space below the header
+    paddingBottom: 80,
   },
   card: {
-    marginVertical: 10,
-    marginHorizontal: 20,
+    marginBottom: 15,
+    backgroundColor: '#fff',
     borderRadius: 10,
-    overflow: 'hidden', // To keep the image inside the card bounds
-    elevation: 5, // For Android
-  },
-  image: {
-    width: '100%',
-    height: 200,
-    justifyContent: 'flex-end',
-  },
-  imageStyle: {
-    borderRadius: 20, // Radius for image corners
+    marginHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    top: 13,
   },
   textContainer: {
     padding: 15,
+    backgroundColor: '#234873',
+    borderRadius: 10,
   },
   categoryContainer: {
-    backgroundColor: '#FFF',
-    alignSelf: 'flex-start',
-    paddingVertical: 2,
+    backgroundColor: '#fff',
+    paddingVertical: 15,
     paddingHorizontal: 10,
     borderRadius: 5,
-    marginBottom: 5,
   },
   category: {
-    fontSize: 14,
-    fontWeight: 'bold',
     color: '#234873',
+    fontSize: 12,
   },
-  title: {
-    fontSize: 20,
+  courseTitle: {
+    marginTop: 10,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFF',
+    color: '#fff',
+  },
+  courseDescription: {
+    marginTop: 5,
+    fontSize: 14,
+    color: '#fff',
+  },
+  coursePrice: {
+    marginTop: 5,
+    fontSize: 14,
+    color: '#FFD700',
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    marginTop: 5,
+  },
+  courseRating: {
+    color: '#FFD700',
+    fontSize: 14,
   },
   addButton: {
     position: 'absolute',
     bottom: 20,
     right: 20,
     backgroundColor: '#234873',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5, // Shadow for Android
+    borderRadius: 50,
+    padding: 15,
+    elevation: 5,
   },
 });
 

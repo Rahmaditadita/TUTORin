@@ -14,6 +14,7 @@ const PayScreen = ({ onPaymentSuccess }) => {
   const [showMethodDropdown, setShowMethodDropdown] = useState(false);
   const [selectedSessionTime, setSelectedSessionTime] = useState('');
   const [selectedLearningMethod, setSelectedLearningMethod] = useState('');
+  const navigation = useNavigation(); 
   
 
   const banks = [
@@ -49,26 +50,18 @@ const PayScreen = ({ onPaymentSuccess }) => {
     setShowMethodDropdown(false);
   };
 
-  const handlePayment = async (selectedCourseId) => {
-    const db = getFirestore();
-
-    const selectedCourse = courses.find(course => course.id === selectedCourseId);
-    if (!selectedCourse) {
-      console.error('Course tidak ditemukan');
-      return;
+  const handlePayment = async () => {
+    // Cek apakah bank, waktu sesi, dan metode pembelajaran sudah dipilih
+    if (!selectedBank || !selectedSessionTime || !selectedLearningMethod) {
+      Alert.alert('Peringatan', 'Harap pilih bank, waktu sesi, dan metode pembelajaran.');
+      return; // Jangan lanjutkan jika ada yang belum dipilih
     }
-
-    const paymentsRef = collection(
-      db,
-      'Users',
-      'loginpelajar',
-      'pelajar',
-      'pengguna1',
-      'Payments',
-    );
   
+    const db = getFirestore();
+  
+    // Detail pembayaran (sesuaikan sesuai kebutuhan Anda)
     const paymentDetails = {
-      userId: 'pengguna1', // Sesuaikan dengan ID pengguna saat ini
+      userId: 'pengguna1', // ID pengguna
       tutorId: 'Tutor123', // ID tutor
       courseId: 'Biology', // ID kursus
       amount: 100000, // Jumlah pembayaran
@@ -77,12 +70,26 @@ const PayScreen = ({ onPaymentSuccess }) => {
     };
   
     try {
-      await addDoc(paymentsRef, paymentDetails); // Simpan data ke Firestore
-      alert('Pembayaran berhasil!'); // Tampilkan alert sukses
-      navigate('/listpelajar'); // Redirect ke halaman 'listpelajar'
+      // Simpan data pembayaran ke Firestore
+      const paymentsRef = collection(
+        db,
+        'Users',
+        'Pelajar',
+        'Payments',
+        'pengguna',
+        'userpelajar'
+      );
+      await addDoc(paymentsRef, paymentDetails);
+  
+      // Tampilkan notifikasi sukses
+      Alert.alert('Success', 'Pembayaran berhasil!');
+  
+      // Arahkan pengguna ke halaman listpelajar
+      navigation.navigate('listpelajar'); // Nama screen sesuai konfigurasi di navigator
     } catch (error) {
-      console.error('Error saving payment:', error); // Log error jika terjadi
-      alert('Terjadi kesalahan saat menyimpan pembayaran. Coba lagi.'); // Tampilkan alert error
+      // Tampilkan error jika ada
+      console.error('Error saving payment:', error);
+      Alert.alert('Error', 'Terjadi kesalahan saat menyimpan pembayaran. Coba lagi.');
     }
   };
 
@@ -90,10 +97,10 @@ const PayScreen = ({ onPaymentSuccess }) => {
     const paymentsRef = collection(
       db,
       'Users',
-      'loginpelajar',
-      'pelajar',
-      'pengguna1',
-      'Payments'
+      'Pelajar',
+      'Payments',
+      'pengguna',
+      'userpelajar'
     );
   
     try {
@@ -105,6 +112,11 @@ const PayScreen = ({ onPaymentSuccess }) => {
       console.error('Error fetching payments:', error);
     }
   };
+
+  useEffect(() => {
+    fetchPayments();
+  }, []);
+  
 
   const copyToClipboard = () => {
     Clipboard.setString(paymentCode);

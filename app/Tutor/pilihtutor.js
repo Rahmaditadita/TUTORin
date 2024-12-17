@@ -1,21 +1,13 @@
 import React, { useState } from 'react';
-import { 
-  StyleSheet, 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  SafeAreaView, 
-  FlatList, 
-  ImageBackground, 
-  Modal, 
-  TextInput 
-} from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, FlatList, ImageBackground, Modal, TextInput } from 'react-native';
 
 export default function PilihTutor({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
-  const [classLevel, setClassLevel] = useState('');
+  const [description, setDescription] = useState('');
+  const [details, setDetails] = useState('');
 
   const availableCourses = [
     {
@@ -52,7 +44,7 @@ export default function PilihTutor({ navigation }) {
 
   const handleSelectCourse = (course) => {
     setSelectedCourse(course);
-    setModalVisible(true); // Show modal to input price
+    setModalVisible(true); // Show modal to input course details
   };
 
   const handleAddCourse = () => {
@@ -60,15 +52,18 @@ export default function PilihTutor({ navigation }) {
     navigation.navigate('Tutorkursus', {
       newCourse: {
         id: selectedCourse.id,
-        title: selectedCourse.title,
+        title: title || selectedCourse.title, // Use input title or default
         category: selectedCourse.category,
         image: selectedCourse.image,
-        price, // Pass price to next screen
-        classLevel, // Pass class level to next screen
+        price,
+        description,
+        details: details.split(',').map((item) => item.trim()), // Convert details to array
       },
     });
+    setTitle(''); // Reset title input
     setPrice(''); // Reset price input
-    setClassLevel(''); // Reset class level input
+    setDescription(''); // Reset description input
+    setDetails(''); // Reset details input
   };
 
   return (
@@ -113,7 +108,13 @@ export default function PilihTutor({ navigation }) {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Set Price and Class Level for {selectedCourse?.title}</Text>
+            <Text style={styles.modalTitle}>Set Details for {selectedCourse?.title}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter title"
+              value={description}
+              onChangeText={setDescription}
+            />
             <TextInput
               style={styles.input}
               placeholder="Enter price"
@@ -123,9 +124,15 @@ export default function PilihTutor({ navigation }) {
             />
             <TextInput
               style={styles.input}
-              placeholder="Enter class level (e.g., Beginner, Advanced)"
-              value={classLevel}
-              onChangeText={setClassLevel}
+              placeholder="Enter description"
+              value={description}
+              onChangeText={setDescription}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Enter course details (comma-separated)"
+              value={details}
+              onChangeText={setDetails}
             />
             <TouchableOpacity style={styles.addButton} onPress={handleAddCourse}>
               <Text style={styles.addButtonText}>Save</Text>

@@ -58,7 +58,7 @@ const BioScreen = () => {
             navigation.navigate('bio');
           }}
           onViewMore={() => {
-            console.log('View More Miss Aini');
+            console.log('View More Miss Sekar');
             navigation.navigate('Profilementor'); // Ganti dengan nama rute yang sesuai
           }}
         />
