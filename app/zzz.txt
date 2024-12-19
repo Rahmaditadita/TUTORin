@@ -1,34 +1,46 @@
-{activeTab === 'Course' && (
-  <View style={styles.tabContent}>
-    <Text style={styles.tabTitle}>Courses Offered</Text>
-    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-      {courses.map((item, index) => (
-        <View key={index} style={styles.courseItem}>
-          <Text style={styles.courseTitle}>{item.title}</Text>
-          <Text style={styles.courseDescription}>{item.description}</Text>
-          <Text style={styles.coursePrice}>{item.price}</Text>
-          <View style={styles.ratingContainer}>
-            <Text style={styles.courseRating}>{item.rating}</Text>
-          </View>
-          <View style={styles.courseDetailsContainer}>
-            {item.details.map((detail, index) => (
-              <View key={index} style={styles.detailItem}>
-                <Icon name="check" size={20} color="green" />
-                <Text style={styles.courseDetail}>{detail}</Text>
-              </View>
-            ))}
-          </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={() => handleBuy(item.title)}>
-              <Text style={styles.buyButton}>Buy</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ))}
-    </ScrollView>
-  </View>
-)}
 
+1.  CARA MENAMBAHKAN DATA
+Jika Anda ingin menambahkan data di koleksi utama (Users, Payments):
+const usersRef = collection(db, 'Users'); // Koleksi utama
+
+//COMTOH
+const docRef = await addDoc(collection(db, 'Payments'), {
+  userId: 'user123',
+  amount: 100000,
+});
+
+
+Jika ingin menambahkan di sub-koleksi:
+const userDoc = doc(db, 'Users', 'user123'); // Dokumen spesifik
+const paymentsRef = collection(userDoc, 'Payments'); // Sub-koleksi Payments
+
+const paymentsRef = collection(doc(db, 'Users', 'user123'), 'Payments');
+const docRef = await addDoc(paymentsRef, {
+  amount: 200000,
+});
+
+2. CARA MENGAMBIL DATA
+Mengambil dokumen spesifik:
+const docRef = doc(db, 'Users', 'user123');
+const docSnap = await getDoc(docRef);
+
+Mengambil semua dokumen dalam koleksi:
+const querySnapshot = await getDocs(collection(db, 'Users'));
+querySnapshot.forEach((doc) => {
+  console.log(doc.id, '=>', doc.data());
+});
+
+Biology Progress Pack
+"Tingkatkan pemahamanmu dengan pembelajaran yang lebih mendalam."
+
+Biology Advance Pack
+"Dapatkan pengetahuan lebih lanjut dan kuasai topik-topik penting."
+
+Biology Skill Builder Pack
+"Membangun keahlian biologi dengan materi yang lebih menantang."
+
+Biology Expertise Pack
+"Perdalam pemahamanmu dan kuasai konsep-konsep kunci dalam biologi."
 
 
 paltte\

@@ -1,0 +1,297 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, FlatList, Clipboard} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { getFirestore, collection, addDoc, serverTimestamp, getDoc, doc, setDoc } from 'firebase/firestore';
+import { db } from '../service/firebaseconfig';
+import { useNavigation } from '@react-navigation/native';
+
+const PayScreen = ({ route }) => {
+  const { onPaymentSuccess } = route.params || {}; // Mendapatkan callback dari params
+  const [selectedBank, setSelectedBank] = useState(null);
+  const [paymentCode, setPaymentCode] = useState('');
+  const [showBankDropdown, setShowBankDropdown] = useState(false);
+  const [showSessionDropdown, setShowSessionDropdown] = useState(false);
+  const [showMethodDropdown, setShowMethodDropdown] = useState(false);
+  const [selectedSessionTime, setSelectedSessionTime] = useState('');
+  const [selectedLearningMethod, setSelectedLearningMethod] = useState('');
+  const navigation = useNavigation();
+
+  const banks = [
+    { id: 'bca', name: 'BCA' },
+    { id: 'bri', name: 'BRI' },
+  ];
+
+  const sessionTimes = [
+    { id: '10am', name: '10:00 AM' },
+    { id: '1pm', name: '1:00 PM' },
+    { id: '3pm', name: '3:00 PM' },
+  ];
+
+  const learningMethods = [
+    { id: 'online', name: 'Online' },
+    { id: 'offline', name: 'Offline' },
+  ];
+
+  const handleBankSelect = (bank) => {
+    setSelectedBank(bank);
+    setShowBankDropdown(false);
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    setPaymentCode(code);
+  };
+
+  const handleSessionSelect = (session) => {
+    setSelectedSessionTime(session);
+    setShowSessionDropdown(false);
+  };
+
+  const handleMethodSelect = (method) => {
+    setSelectedLearningMethod(method);
+    setShowMethodDropdown(false);
+  };
+
+  const handlePayment = async () => {
+    if (!selectedBank || !selectedSessionTime || !selectedLearningMethod) {
+      Alert.alert('Peringatan', 'Harap pilih bank, waktu sesi, dan metode pembelajaran.');
+      return;
+    }
+
+    const db = getFirestore();
+
+    const paymentDetails = {
+      userId: 'pengguna1',
+      tutorId: 'Tutor123',
+      courseId: 'Biology',
+      amount: 100000,
+      status: 'complete',
+      timestamp: serverTimestamp(),
+    };
+
+    try {
+      // Simpan data pembayaran
+      const paymentsRef = collection(db, 'Users', 'Pelajar', 'Payments');
+      await addDoc(paymentsRef, paymentDetails);
+
+      // Update uang tutor
+      const tutorDocRef = doc(db, 'Users', 'Tutor', 'Courses', 'money');
+      const tutorDoc = await getDoc(tutorDocRef);
+
+      if (tutorDoc.exists()) {
+        const tutorData = tutorDoc.data();
+        const updatedMoney = (tutorData.money || 0) + paymentDetails.amount;
+
+        await setDoc(tutorDocRef, { money: updatedMoney }, { merge: true });
+
+        // Callback untuk memperbarui UI di HomePage
+        onPaymentSuccess(updatedMoney); // Memanggil fungsi yang diteruskan melalui params
+      } else {
+        console.log('Tutor document not found.');
+      }
+
+      Alert.alert('Success', 'Pembayaran berhasil!');
+      navigation.navigate('listpelajar');
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      Alert.alert('Error', 'Terjadi kesalahan saat menyimpan pembayaran. Coba lagi.');
+    }
+  };
+
+  useEffect(() => {
+    if (onPaymentSuccess) {
+      // Fungsi ini akan dipanggil setelah pembayaran selesai
+      onPaymentSuccess(1000000); // Misalnya, uang yang diperbarui
+    }
+  }, [onPaymentSuccess]);
+
+  navigation.navigate('PayScreen', {
+    onPaymentSuccess: handlePaymentSuccess, // Mengirimkan fungsi sebagai parameter
+  });
+  
+
+  const copyToClipboard = () => {
+    Clipboard.setString(paymentCode);
+    Alert.alert('Copied!', 'Payment code has been copied to clipboard.');
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Select Your Bank</Text>
+      <TouchableOpacity style={styles.dropdownButton} onPress={() => setShowBankDropdown(!showBankDropdown)}>
+        <Text style={styles.dropdownText}>
+          {selectedBank ? selectedBank.name : 'Select a bank'}
+        </Text>
+        <Text style={styles.arrow}>{showBankDropdown ? '▲' : '▼'}</Text>
+      </TouchableOpacity>
+
+      {showBankDropdown && (
+        <FlatList
+          data={banks}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.bankOption}
+              onPress={() => handleBankSelect(item)}
+            >
+              <Text style={styles.bankOptionText}>{item.name}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      )}
+
+      <Text style={styles.title}>Select Session Time</Text>
+      <TouchableOpacity style={styles.dropdownButton} onPress={() => setShowSessionDropdown(!showSessionDropdown)}>
+        <Text style={styles.dropdownText}>
+          {selectedSessionTime ? selectedSessionTime.name : 'Select a session time'}
+        </Text>
+        <Text style={styles.arrow}>{showSessionDropdown ? '▲' : '▼'}</Text>
+      </TouchableOpacity>
+
+      {showSessionDropdown && (
+        <FlatList
+          data={sessionTimes}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.bankOption}
+              onPress={() => handleSessionSelect(item)}
+            >
+              <Text style={styles.bankOptionText}>{item.name}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      )}
+
+      <Text style={styles.title}>Select Learning Method</Text>
+      <TouchableOpacity style={styles.dropdownButton} onPress={() => setShowMethodDropdown(!showMethodDropdown)}>
+        <Text style={styles.dropdownText}>
+          {selectedLearningMethod ? selectedLearningMethod.name : 'Select a learning method'}
+        </Text>
+        <Text style={styles.arrow}>{showMethodDropdown ? '▲' : '▼'}</Text>
+      </TouchableOpacity>
+
+      {showMethodDropdown && (
+        <FlatList
+          data={learningMethods}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.bankOption}
+              onPress={() => handleMethodSelect(item)}
+            >
+              <Text style={styles.bankOptionText}>{item.name}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      )}
+
+<View>
+      <Text>Payment Screen</Text>
+      <Button
+        title="Complete Payment"
+        onPress={() => {
+          // Ketika pembayaran selesai, panggil onPaymentSuccess
+          if (onPaymentSuccess) {
+            onPaymentSuccess(1000000); // Update money setelah pembayaran
+          }
+        }}
+      />
+    </View>
+
+
+      {paymentCode ? (
+        <View style={styles.codeContainer}>
+          <Text style={styles.codeText}>Payment Code: {paymentCode}</Text>
+          <TouchableOpacity onPress={copyToClipboard} style={styles.copyButton}>
+            <Icon name="content-copy" size={24} color="#000" />
+          </TouchableOpacity>
+        </View>
+      ) : null}
+
+      <TouchableOpacity style={styles.payButton} onPress={handlePayment}>
+        <Text style={styles.payButtonText}>Proceed to Payment</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#F6EFBD',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 0,
+    marginVertical: -10,
+    marginTop: 20,
+    top: 1,
+    color: '#234873',
+  },
+  dropdownButton: {
+    backgroundColor: '#234873',
+    borderRadius: 10,
+    padding: 15,
+    marginVertical: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#5C88C4',
+  },
+  dropdownText: {
+    fontSize: 18,
+    color: '#F6EFBD'
+  },
+  arrow: {
+    fontSize: 18,
+    color: '#F6EFBD'
+  },
+  bankOption: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#5C88C4',
+  },
+  bankOptionText: {
+    fontSize: 18,
+  },
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginVertical: 10,
+  },
+  codeContainer: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#e0f7fa',
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  codeText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  copyButton: {
+    padding: 10,
+  },
+  payButton: {
+    backgroundColor: '#5C88C4',
+    borderRadius: 10,
+    padding: 15,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  payButtonText: {
+    color: '#F6EFBD',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+});
+
+export default PayScreen;

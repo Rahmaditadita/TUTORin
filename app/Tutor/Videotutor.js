@@ -1,40 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Modal } from 'react-native';
-import { Video } from 'expo-av';
+import { WebView } from 'react-native-webview';  // Import WebView
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { firestore } from '../service/firebaseconfig'; // Import Firestore instance
+import { collection, addDoc, getDocs } from 'firebase/firestore'; // Import Firestore functions
 
 export default function TutorDashboard({ navigation }) {
   const [videos, setVideos] = useState([
-    {
-      thumbnail: require('../assets/sampul1.png'),
-      title: 'Apa Itu Ilmu Biologi Sebenarnya?',
-      lesson: 'Lesson 1',
-      videoUrl: 'https://youtu.be/CrlVgxuaTWk',
-    },
-    {
-      thumbnail: require('../assets/sampul2.png'),
-      title: 'Understanding Cells',
-      lesson: 'Lesson 2',
-      videoUrl: 'https://youtu.be/UJltOSp7eZ8',
-    },
+    { thumbnail: require('../assets/sampul1.png'), title: 'Apa Itu Ilmu Biologi Sebenarnya?', lesson: 'Lesson 1', videoUrl: 'https://youtu.be/CrlVgxuaTWk' },
+    { thumbnail: require('../assets/sampul2.png'), title: 'Understanding Cells', lesson: 'Lesson 2', videoUrl: 'https://youtu.be/UJltOSp7eZ8' },
   ]);
-
   const [modalVisible, setModalVisible] = useState(false);
   const [newVideo, setNewVideo] = useState({
-    thumbnail: null,
-    title: '',
-    lesson: '',
-    videoUrl: '',
+    thumbnail: null, title: '', lesson: '', videoUrl: '',
   });
+  const [showWebView, setShowWebView] = useState(false); // State to show WebView
+  const [currentVideoUrl, setCurrentVideoUrl] = useState(''); // State to store current video URL
 
-  const handleAddVideo = () => {
-    setVideos((prevVideos) => [...prevVideos, newVideo]);
-    setNewVideo({ thumbnail: null, title: '', lesson: '', videoUrl: '' });
-    setModalVisible(false);
+  const handleAddVideo = async () => {
+    try {
+      // Save video to Firestore in 'Videos' collection
+      const videoRef = collection(firestore,'Users','Tutor','Videos'); // Reference to 'Videos' collection in Firestore
+      await addDoc(videoRef, {
+        thumbnail: newVideo.thumbnail,
+        title: newVideo.title,
+        lesson: newVideo.lesson,
+        videoUrl: newVideo.videoUrl,
+      });
+
+      // Update local state after successful addition
+      setVideos((prevVideos) => [...prevVideos, newVideo]);
+
+      // Clear form and close modal
+      setNewVideo({ thumbnail: null, title: '', lesson: '', videoUrl: '' });
+      setModalVisible(false);
+    } catch (error) {
+      console.error('Error adding video: ', error);
+    }
   };
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const videoRef = collection(firestore,'Users','Tutor','Videos' );
+        const videoSnapshot = await getDocs(videoRef);
+        const fetchedVideos = [];
+
+        for (const videoDoc of videoSnapshot.docs) {
+          const videoData = videoDoc.data();
+          fetchedVideos.push(videoData);
+        }
+
+        setVideos(fetchedVideos);
+      } catch (error) {
+        console.error('Error fetching videos: ', error);
+      }
+    };
+
+    fetchVideos();
+  }, []);
 
   const handleDeleteVideo = (index) => {
     setVideos(videos.filter((_, i) => i !== index));
+  };
+
+  const handlePlayVideo = (videoUrl) => {
+    setCurrentVideoUrl(videoUrl);
+    setShowWebView(true); // Show the WebView when a video is selected
   };
 
   return (
@@ -71,12 +103,7 @@ export default function TutorDashboard({ navigation }) {
                 style={styles.quizButton}
                 onPress={() => navigation.navigate('QuizScreen', { lesson: item.lesson })}
               >
-                <TouchableOpacity
-                style={styles.quizButton}
-                onPress={() => navigation.navigate('manageQuiz', { lesson: item.lesson })}
-              >
                 <Text style={styles.quizButtonText}>Manage Quiz</Text>
-              </TouchableOpacity>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => handleDeleteVideo(index)}
@@ -84,10 +111,25 @@ export default function TutorDashboard({ navigation }) {
               >
                 <Ionicons name="trash" size={20} color="#FFF" />
               </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.playButton}
+                onPress={() => handlePlayVideo(item.videoUrl)} // Handle play video
+              >
+                <Ionicons name="play-circle" size={30} color="#234873" />
+                <Text style={styles.playButtonText}>Play Video</Text>
+              </TouchableOpacity>
             </View>
           </View>
         ))}
       </ScrollView>
+
+      {/* WebView for Video Playback */}
+      {showWebView && (
+        <WebView
+          source={{ uri: currentVideoUrl }}
+          style={{ height: 300, marginTop: 10 }}
+        />
+      )}
 
       {/* Modal for Adding Video */}
       <Modal visible={modalVisible} animationType="slide">
@@ -174,11 +216,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
+    width: 330,
+    height: 230,
   },
   thumbnail: {
     height: 200,
     width: '100%',
     borderRadius: 10,
+    marginTop: -192,
   },
   textContainer: {
     padding: 16,
@@ -203,16 +248,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#234873',
     padding: 10,
     borderRadius: 5,
+    top: 72,
   },
   quizButtonText: {
     color: '#FFF',
     fontSize: 14,
     fontWeight: 'bold',
+    
   },
   deleteButton: {
     backgroundColor: '#D9534F',
     padding: 10,
     borderRadius: 5,
+    top: 72,
+  },
+  playButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#234873',
+    padding: 10,
+    borderRadius: 5,
+    top: 72
+  },
+  playButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    marginLeft: -1,
+    left: -12,
+    fontWeight: 'bold'
   },
   modalContainer: {
     flex: 1,

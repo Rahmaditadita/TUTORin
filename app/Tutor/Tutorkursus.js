@@ -1,51 +1,51 @@
-import React, { useState } from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-// Sampel awal kursus yang diajarkan
-const initialCourses = [
-  {
-    category: 'Scisos',
-    title: 'Biology Mastery Pack',
-    price: '75000',
-    rating: '4.9 (100 Reviews)',
-    description: 'Coba paket ini dan temukan cara mudah belajar biologi!',
-    details: [
-      '3 sesi privat',
-      '120 menit per sesi',
-      'Bebas atur jadwal',
-      'Bebas atur sesi'
-    ],
-  },
-];
+import { firestore } from '../service/firebaseconfig';
+import { collection, getDocs, doc } from 'firebase/firestore'; // impor fungsi untuk mengambil data
 
 const Tutorkursus = ({ navigation, route }) => {
-  const [tutorCourses, setTutorCourses] = useState(initialCourses);
+  const [tutorCourses, setTutorCourses] = useState([]);
 
-  // Handle tambahan kursus baru
-  React.useEffect(() => {
+  // Ambil data kursus dari Firestore
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        // Mengakses subcollection 'matpel' di dalam dokumen 'Tutor' yang ada di koleksi 'Users'
+        const coursesRef = collection(firestore, 'Users', 'Tutor', 'matpel');
+        const querySnapshot = await getDocs(coursesRef); // Mengambil semua dokumen di subcollection matpel
+        
+        if (!querySnapshot.empty) {
+          const courseData = querySnapshot.docs.map(doc => doc.data()); // Menyusun data kursus dari dokumen yang ditemukan
+          setTutorCourses(courseData); // Menyimpan data kursus ke state
+        } else {
+          console.log('No courses found in matpel!');
+        }
+      } catch (error) {
+        console.error('Error fetching courses: ', error);
+      }
+    };
+    
+
+    fetchCourses();
+  }, []); // Kosongkan array dependency agar hanya dieksekusi sekali saat komponen dimuat
+
+  // Menambahkan kursus baru dari halaman PilihTutor
+  useEffect(() => {
     if (route.params?.newCourse) {
       setTutorCourses((prevCourses) => [...prevCourses, route.params.newCourse]);
     }
   }, [route.params?.newCourse]);
 
   const handleAddCourse = () => {
-    navigation.navigate('pilihtutor', { onAddCourse: setTutorCourses }); // Navigasi ke layar tambah kursus
+    navigation.navigate('pilihtutor', { onAddCourse: setTutorCourses });
   };
 
   const handleCoursePress = (course) => {
-    if (course.title === 'Biology Mastery Pack') {
-      navigation.navigate('Videotutor'); // Navigasi ke screen videokuistutor
-    }
-    // Anda bisa menambahkan navigasi untuk kursus lain di sini
+    // Arahkan ke halaman 'Videotutor' untuk semua kursus
+    navigation.navigate('Videotutor', { courseId: course.id }); // Menambahkan parameter untuk memudahkan pengelolaan kursus di halaman Videotutor
   };
+  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -59,25 +59,29 @@ const Tutorkursus = ({ navigation, route }) => {
 
       {/* Content */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {tutorCourses.map((course, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.card}
-            onPress={() => handleCoursePress(course)}
-          >
-            <View style={styles.textContainer}>
-              <View style={styles.categoryContainer}>
-                <Text style={styles.category}>{course.category}</Text>
+        {tutorCourses.length === 0 ? (
+          <Text style={styles.noCoursesText}>No courses available</Text>
+        ) : (
+          tutorCourses.map((course, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.card}
+              onPress={() => handleCoursePress(course)}
+            >
+              <View style={styles.textContainer}>
+                <View style={styles.categoryContainer}>
+                  <Text style={styles.category}>{course.category}</Text>
+                </View>
+                <Text style={styles.courseTitle}>{course.title}</Text>
+                <Text style={styles.courseDescription}>{course.description}</Text>
+                <Text style={styles.coursePrice}>{course.price}</Text>
+                <View style={styles.ratingContainer}>
+                  <Text style={styles.courseRating}>{course.rating}</Text>
+                </View>
               </View>
-              <Text style={styles.courseTitle}>{course.title}</Text>
-              <Text style={styles.courseDescription}>{course.description}</Text>
-              <Text style={styles.coursePrice}>{course.price}</Text>
-              <View style={styles.ratingContainer}>
-                <Text style={styles.courseRating}>{course.rating}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        ))}
+            </TouchableOpacity>
+          ))
+        )}
       </ScrollView>
 
       {/* Add Button */}
@@ -106,6 +110,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#234873',
     marginLeft: 10,
+    marginTop: 30,
   },
   scrollContent: {
     paddingBottom: 80,
@@ -168,6 +173,12 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     padding: 15,
     elevation: 5,
+  },
+  noCoursesText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#234873',
+    marginTop: 20,
   },
 });
 

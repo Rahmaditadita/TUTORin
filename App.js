@@ -30,6 +30,8 @@ import ManageQuiz from './app/Tutor/manageQuiz';
 import Tutorkursus from './app/Tutor/Tutorkursus';
 import TutorDashboard from './app/Tutor/Videotutor';
 import PilihTutor from './app/Tutor/pilihtutor';
+import EmptyCourseScreen from './app/pelajar/course';
+import EmptyCourseScreen1 from './app/pelajar/course1';
 
 
 const Stack = createStackNavigator();
@@ -77,6 +79,7 @@ export default function App() {
         <Stack.Screen name='videoBio' component={BioVideo}/>
         <Stack.Screen name='QuizScreen' component={QuizScreen} />
         <Stack.Screen name='listpelajar' component={listpelajar}/>
+        <Stack.Screen name='course' component={EmptyCourseScreen}/>
 
 
         <Stack.Screen name="logintutor" component={LoginT}/>
@@ -86,6 +89,7 @@ export default function App() {
         <Stack.Screen name='Tutorkursus' component={Tutorkursus}/>
         <Stack.Screen name='Videotutor' component={TutorDashboard}/>
         <Stack.Screen name='pilihtutor' component={PilihTutor}/>
+        <Stack.Screen name='course1' component={EmptyCourseScreen1}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

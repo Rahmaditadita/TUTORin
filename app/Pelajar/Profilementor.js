@@ -90,8 +90,8 @@ const ProfilementorScreen = () => {
 
     const saveReviewToFirebase = async () => {
       try {
-        const reviewsRef = collection(firestore, 'Reviews');
-        const docRef = await addDoc(reviewsRef, {
+        const reviewsRef = collection(firestore, 'Users', 'Tutor', 'Courses', 'course', 'review' );
+        const setDoc = await addDoc(reviewsRef, {
           tutorId: 'TutorId', // Ganti dengan ID tutor yang sebenarnya
           rating: rating,
           comment: comment,
@@ -99,7 +99,7 @@ const ProfilementorScreen = () => {
         });
   
         const newReview = {
-          id: docRef.id,
+          id: setDoc.id,
           rating: rating,
           comment: comment,
         };

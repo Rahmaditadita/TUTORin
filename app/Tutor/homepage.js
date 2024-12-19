@@ -12,7 +12,7 @@ const HomePage = ({ onLogout }) => {
     bio: 'tutors teaching spirit.',
     description: 'I am a passionate mentor with over 5 years of experience in the field. I love sharing knowledge and helping others achieve their goals.',
     rating: 4.5,
-    money: 1000000,
+    money: 20000,
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -44,27 +44,81 @@ const HomePage = ({ onLogout }) => {
   };
 
   const handleCoursePurchase = (paymentAmount) => {
-    processPayment(paymentAmount);  // Misalnya paymentAmount = 100000
+    processPayment(paymentAmount);  // Pass the payment amount, e.g., 100000
   };
-  
 
+  const ProfileDescription = ({ profile }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const descriptionLength = 100; // Atur panjang teks yang ingin ditampilkan
+
+  const handleToggle = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  const truncatedDescription = profile.description.substring(0, descriptionLength) + '...';
+};
+  
   const processPayment = async (paymentAmount) => {
     try {
-      // Mengambil dokumen tutor dari Firestore
-      const tutorDocRef = doc(firestore, 'Users', 'Tutor', 'Payments', 'userpelajar'); // Pastikan ID dan path koleksi sudah benar
+      // Step 1: Get the student's document reference from Firestore
+      const studentDocRef = doc(firestore, 'Users', 'Pelajar', 'Payments', 'pengguna', 'userpelajar'); // Modify this path based on your structure
+  
+      // Step 2: Fetch the student's document to get current money balance
+      const studentDoc = await getDoc(studentDocRef);
+      
+      if (studentDoc.exists()) {
+        const studentData = studentDoc.data();
+        const currentMoney = studentData.money || 0;  // Default to 0 if no money field exists
+  
+        // Step 3: Calculate the new money balance
+        const newMoneyAmount = currentMoney + paymentAmount;
+  
+        // Step 4: Update the student's document with the new money balance
+        await setDoc(studentDocRef, { money: newMoneyAmount }, { merge: true });
+  
+        // Step 5: Update local state (profile) with the new money balance
+        setProfile((prevProfile) => ({
+          ...prevProfile,
+          money: newMoneyAmount,  // Update the money state
+        }));
+  
+        console.log('Payment processed successfully');
+        navigation.navigate('PayScreen', {
+          onPaymentSuccess: handlePaymentSuccess,
+        });
+      } else {
+        console.log('Student document not found');
+      }
+    } catch (error) {
+      console.error('Error processing payment:', error);
+    }
+  };
+  
+  const handlePaymentSuccess = (updatedMoney) => {
+    setProfile((prevProfile) => ({
+      ...prevProfile,
+      money: updatedMoney,
+    }));
+  };
+  
+  
+
+
+  const handlePayment = async (paymentAmount) => {
+    try {
+      const tutorDocRef = doc(firestore, 'Users', 'Tutor', 'Courses', 'money'); // Ganti dengan path yang sesuai
       const tutorDoc = await getDoc(tutorDocRef);
   
       if (tutorDoc.exists()) {
-        // Ambil data profil tutor
         const tutorData = tutorDoc.data();
         const newMoneyAmount = tutorData.money + paymentAmount;
   
-        // Update 'money' di dokumen tutor
+        // Memperbarui money di Firestore
         await setDoc(tutorDocRef, { money: newMoneyAmount }, { merge: true });
   
-        // Update state profil dengan uang terbaru
+        // Ubah nilai money di state
         setProfile((prevProfile) => ({
-          ...prevProfile,  // Menyalin data profil sebelumnya
+          ...prevProfile,
           money: newMoneyAmount,  // Menambahkan uang baru ke state profil
         }));
   
@@ -126,6 +180,8 @@ useEffect(() => {
   fetchMentorDescription();
 }, []);
 
+
+
   const handleout = () => {
     Alert.alert(
       "Confirm Logout",
@@ -169,32 +225,25 @@ useEffect(() => {
             </TouchableOpacity>
             // Menambahkan tombol pembelian kursus atau transaksi pembayaran
           <TouchableOpacity style={styles.button} onPress={() => handleCoursePurchase(100000)}>
-             <Text style={styles.buttonText}>Money: ${profile.money}</Text>
+             <Text style={styles.buttonText}>Money: Rp{new Intl.NumberFormat('id-ID').format(profile.money)}</Text>
           </TouchableOpacity>
 
           </View>
 
           <View style={styles.descriptionContainer}>
-            {isEditing ? (
-              <View style={styles.editContainer}>
-                <TextInput
-                  style={styles.textInput}
-                  value={editDescription}
-                  onChangeText={setEditDescription}
-                  multiline
-                />
-                <Button title="Save" onPress={handleSaveDescription} />
-              </View>
-            ) : (
-              <View style={styles.descriptionRow}>
-                <Text style={styles.description}>{profile.description}</Text>
-                <TouchableOpacity onPress={handleEditDescription}>
-                  <Icon name="edit" size={20} color="blue" style={styles.editIcon} />
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        </View>
+      <View style={styles.descriptionRow}>
+        <Text style={styles.description}>
+          {isExpanded ? profile.description : truncatedDescription}
+        </Text>
+        <TouchableOpacity onPress={handleToggle}>
+          <Text style={styles.viewMoreButton}>
+            {isExpanded ? 'View Less' : 'View More'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+</View>
 
         <View style={styles.coursesSection}>
           <Text style={styles.sectionTitle}>Courses</Text>
@@ -318,9 +367,17 @@ const styles = StyleSheet.create({
     top: 5,
     left: -5
   },
-  descriptionContainer: { marginTop: 10, alignItems: 'center', paddingHorizontal: 10 },
-  descriptionRow: { flexDirection: 'row', alignItems: 'center' },
-  description: { fontSize: 10, color: 'white', marginRight: -80, marginTop: -140},
+  descriptionScroll: { width: '100%', maxHeight: 120, // Sesuaikan dengan tinggi yang diinginkan
+padding: 5,
+  },
+  
+  descriptionContainer: { marginTop: 10, alignItems: 'center', paddingHorizontal: -130 },
+  descriptionRow: { flexDirection: 'row', alignContent: 'center', left: -1},
+  description: { fontSize: 15, color: 'white', marginTop: -200},
+  viewMoreButton: {
+    color: 'blue',
+    marginLeft: 10,
+  },
   editIcon: { marginLeft: 137, color: '#FFF7C0',marginTop: -80,},
   editContainer: { alignItems: 'center', width: '100%', },
   textInput: { width: '90%', borderColor: 'gray', borderWidth: 1, borderRadius: 5, padding: 10, backgroundColor: 'white', marginBottom: 10},

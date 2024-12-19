@@ -1,15 +1,5 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  Alert,
-  SafeAreaView,
-  Modal,
-} from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, Alert, SafeAreaView, Modal, } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function ManageQuiz({ route, navigation }) {
@@ -18,10 +8,7 @@ export default function ManageQuiz({ route, navigation }) {
   // Objek untuk soal berdasarkan lesson
   const [quizQuestions, setQuizQuestions] = useState({
     'Lesson 1': [
-      {
-        question: 'What is the main function of the heart?',
-        options: ['Pumping blood', 'Digesting food', 'Filtering waste', 'Producing energy'],
-        correctAnswer: 0,
+      { question: 'What is the main function of the heart?', options: ['Pumping blood', 'Digesting food', 'Filtering waste', 'Producing energy'], correctAnswer: 0,
       },
     ],
     'Lesson 2': [],

@@ -26,11 +26,11 @@ const scienceScreen = ({}) => {
   };
 
   const handlePhysics = () => {
-    console.log('Physics');
+    navigation.navigate('course');
   };
 
   const handleHistory = () => {
-    console.log('History');
+    navigation.navigate('course1');
   };
 
   return (

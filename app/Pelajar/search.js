@@ -25,13 +25,15 @@ const Search = () => {
   const fetchSubjects = async () => {
     try {
       // Ambil koleksi utama 'coursess'
-      const querySnapshot = await getDocs(collection(firestore, 'coursess'));
-      const coursesData = [];;
+      const querySnapshot = await getDocs(collection(firestore, 'Courses'));
+      const coursesData = [];
       
+      // Iterasi setiap course
       for (const courseDoc of querySnapshot.docs) {
         const courseId = courseDoc.id;
-        const meetSnapshot = await getDocs(collection(firestore, `coursess/${courseId}/meetId`));
         
+        // Ambil data dari sub-koleksi 'meetId'
+        const meetSnapshot = await getDocs(collection(firestore, `coursess/${courseId}/meetId`));
         meetSnapshot.forEach((meetDoc) => {
           const meetData = meetDoc.data();
           coursesData.push({
@@ -40,18 +42,19 @@ const Search = () => {
             category: 'meet', // Tambahkan kategori untuk identifikasi
           });
         });
-
-      const reviewsSnapshot = await getDocs(collection(firestore, `coursess/${courseId}/reviews`));
-      reviewsSnapshot.forEach((reviewDoc) => {
-        const reviewData = reviewDoc.data();
-        coursesData.push({
-          id: reviewDoc.id,
-          title: reviewData.title || '', // Default jika tidak ada 'title'
-          category: 'reviews', // Tambahkan kategori untuk identifikasi
+  
+        // Ambil data dari sub-koleksi 'reviews'
+        const reviewsSnapshot = await getDocs(collection(firestore, `coursess/${courseId}/reviews`));
+        reviewsSnapshot.forEach((reviewDoc) => {
+          const reviewData = reviewDoc.data();
+          coursesData.push({
+            id: reviewDoc.id,
+            title: reviewData.title || '', // Default jika tidak ada 'title'
+            category: 'reviews', // Tambahkan kategori untuk identifikasi
+          });
         });
-      });
-    }
-
+      }
+  
       console.log('Fetched subjects:', coursesData); // Periksa hasil data yang diambil
       return coursesData;
     } catch (error) {
@@ -59,6 +62,7 @@ const Search = () => {
       return [];
     }
   };
+  
 
     const saveSearchToFirebase = async (query) => {
       try {
@@ -95,10 +99,10 @@ const Search = () => {
           navigation.navigate('bio');  // Navigasi ke screen 'bio'
           break;
         case 'history':
-          navigation.navigate('History');  // Navigasi ke screen 'History'
+          navigation.navigate('course1');  // Navigasi ke screen 'History'
           break;
         case 'english':
-          navigation.navigate('English');  // Navigasi ke screen 'English'
+          navigation.navigate('course');  // Navigasi ke screen 'English'
           break;
         case 'mathematics':
           navigation.navigate('Mathematics');  // Navigasi ke screen 'Mathematics'
@@ -110,7 +114,7 @@ const Search = () => {
           navigation.navigate('Arabic');  // Navigasi ke screen 'Arabic'
           break;
         case 'physics':
-          navigation.navigate('Physics');  // Navigasi ke screen 'Physics'
+          navigation.navigate('course');  // Navigasi ke screen 'Physics'
           break;
         default:
           navigation.navigate('DefaultScreen');  // Optional: navigasi ke screen default jika tidak ada yang cocok
